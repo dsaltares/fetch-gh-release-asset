@@ -1,0 +1,26 @@
+name: 'Fetch Github Release Asset'
+description: 'Downloads an asset from a Github release'
+
+inputs:
+  repo:
+    description: 'org/repo to download from'
+    required: true
+  version:
+    description: 'version of the release to download from'
+    required: false
+    default: 'latest'
+  file:
+    description: 'name of the file in the release to download'
+    required: true
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.repo }}
+    - ${{ inputs.version }}
+    - ${{ inputs.file }}
+
+branding:
+  icon: 'download-cloud'
+  color: 'orange'
