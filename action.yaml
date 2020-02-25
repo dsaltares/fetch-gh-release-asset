@@ -4,7 +4,8 @@ description: 'Downloads an asset from a Github release'
 inputs:
   repo:
     description: 'org/repo to download from'
-    required: true
+    required: false
+    default: ''
   version:
     description: 'version of the release to download from'
     required: false

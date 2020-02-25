@@ -6,7 +6,7 @@ This action downloads an asset from a Github release. Private repos are supporte
 
 ### `repo`
 
-**Required** The `org/repo`.
+The `org/repo`. Defaults to the current repo.
 
 ### `version`
 
