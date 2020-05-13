@@ -1,4 +1,4 @@
-#!/bin/bash
+# !/bin/bash
 
 if [[ -z "$GITHUB_TOKEN" ]]; then
   echo "Missing GITHUB_TOKEN env variable"
@@ -20,15 +20,7 @@ if ! [[ -z ${INPUT_REPO} ]]; then
   REPO=$INPUT_REPO ;
 fi
 
-echo $GITHUB_REPOSITORY
-echo $INPUT_REPO
-echo $REPO
-
-API_URL="https://$GITHUB_TOKEN:@api.github.com/repos/$GITHUB_REPOSITORY"
-
-echo $API_URL
-echo $INPUT_VERSION
-
+API_URL="https://$GITHUB_TOKEN:@api.github.com/repos/$REPO"
 ASSET_ID=$(curl $API_URL/releases/${INPUT_VERSION} | jq -r ".assets | map(select(.name == \"${INPUT_FILE}\"))[0].id")
 
 if [[ -z "$ASSET_ID" ]]; then
