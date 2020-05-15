@@ -1,4 +1,4 @@
-# !/bin/bash
+#!/bin/bash
 
 if [[ -z "$GITHUB_TOKEN" ]]; then
   echo "Missing GITHUB_TOKEN env variable"
