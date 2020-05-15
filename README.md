@@ -16,6 +16,9 @@ The release version to fetch from. Default `"latest"`.
 
 **Required** The name of the file in the release.
 
+### `token`
+Optional Personal Access Token to access external repository
+
 ## Example usage
 
 ```yaml
@@ -24,4 +27,5 @@ with:
   repo: "dsaltares/godot-wild-jam-18"
   version: "latest"
   file: "plague-linux.zip"
+  token: ${{ secrets.YOUR_TOKEN }}
 ```
