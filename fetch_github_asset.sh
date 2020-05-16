@@ -20,7 +20,13 @@ if ! [[ -z ${INPUT_REPO} ]]; then
   REPO=$INPUT_REPO ;
 fi
 
-API_URL="https://$GITHUB_TOKEN:@api.github.com/repos/$REPO"
+# Optional personal access token for external repository
+TOKEN=$GITHUB_TOKEN
+if ! [[ -z ${INPUT_TOKEN} ]]; then
+  TOKEN=$INPUT_TOKEN
+fi
+
+API_URL="https://$TOKEN:@api.github.com/repos/$REPO"
 ASSET_ID=$(curl $API_URL/releases/${INPUT_VERSION} | jq -r ".assets | map(select(.name == \"${INPUT_FILE}\"))[0].id")
 
 if [[ -z "$ASSET_ID" ]]; then
