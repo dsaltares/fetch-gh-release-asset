@@ -19,6 +19,12 @@ The release version to fetch from. Default `"latest"`.
 ### `token`
 Optional Personal Access Token to access external repository
 
+## Outputs
+
+### `version`
+
+The version number of the release tag. Can be used to deploy for example to itch.io
+
 ## Example usage
 
 ```yaml

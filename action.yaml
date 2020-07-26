@@ -27,6 +27,10 @@ runs:
     - ${{ inputs.file }}
     - ${{ inputs.token }}
 
+outputs:
+  version:
+    description: 'The version of the release or tag'
+
 branding:
   icon: 'download-cloud'
   color: 'orange'
