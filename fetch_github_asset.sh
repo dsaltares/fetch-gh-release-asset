@@ -27,7 +27,9 @@ if ! [[ -z ${INPUT_TOKEN} ]]; then
 fi
 
 API_URL="https://$TOKEN:@api.github.com/repos/$REPO"
-ASSET_ID=$(curl $API_URL/releases/${INPUT_VERSION} | jq -r ".assets | map(select(.name == \"${INPUT_FILE}\"))[0].id")
+RELEASE_DATA=$(curl $API_URL/releases/${INPUT_VERSION})
+ASSET_ID=$(echo $RELEASE_DATA | jq -r ".assets | map(select(.name == \"${INPUT_FILE}\"))[0].id")
+TAG_VERSION=$(echo $RELEASE_DATA | jq -r ".tag_name" | sed -e "s/^v//" | sed -e "s/^v.//")
 
 if [[ -z "$ASSET_ID" ]]; then
   echo "Could not find asset id"
@@ -40,3 +42,5 @@ curl \
   -H "Accept: application/octet-stream" \
   "$API_URL/releases/assets/$ASSET_ID" \
   -o ${INPUT_FILE}
+
+echo "::set-output name=version::$TAG_VERSION"
