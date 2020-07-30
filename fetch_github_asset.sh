@@ -1,10 +1,5 @@
 #!/bin/bash
 
-if [[ -z "$GITHUB_TOKEN" ]]; then
-  echo "Missing GITHUB_TOKEN env variable"
-  exit 1
-fi
-
 if [[ -z "$INPUT_FILE" ]]; then
   echo "Missing file input in the action"
   exit 1
