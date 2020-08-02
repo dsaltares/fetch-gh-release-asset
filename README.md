@@ -10,7 +10,7 @@ The `org/repo`. Defaults to the current repo.
 
 ### `version`
 
-The release version to fetch from. Default `"latest"`.
+The release version to fetch from. Default `"latest"`. If not `"latest"`, this has to be in the form `tags/<tag_name>` or `<release_id>`.
 
 ### `file`
 
