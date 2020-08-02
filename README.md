@@ -17,7 +17,7 @@ The release version to fetch from. Default `"latest"`.
 **Required** The name of the file in the release.
 
 ### `token`
-Optional Personal Access Token to access external repository
+Optional Personal Access Token to access repository. You need to either specify this or set the GITHUB_TOKEN environment variable yourself.
 
 ## Outputs
 
