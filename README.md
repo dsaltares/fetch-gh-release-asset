@@ -17,7 +17,7 @@ The release version to fetch from. Default `"latest"`. If not `"latest"`, this h
 **Required** The name of the file in the release.
 
 ### `token`
-Optional Personal Access Token to access repository. You need to either specify this or set the GITHUB_TOKEN environment variable yourself.
+Optional Personal Access Token to access repository. You need to either specify this or use the ``secrets.GITHUB_TOKEN`` environment variable. Note that if you are working with a private repository, you cannot use the default ``secrets.GITHUB_TOKEN`` - you have to set up a [personal access token with at least the scope org:hook](https://github.com/dsaltares/fetch-gh-release-asset/issues/10#issuecomment-668665447).
 
 ## Outputs
 
