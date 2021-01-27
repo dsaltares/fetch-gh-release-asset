@@ -13,6 +13,9 @@ inputs:
   file:
     description: 'name of the file in the release to download'
     required: true
+  target:
+    description: 'name of the target file path'
+    required: false
   token:
     description: 'optional Personal Access Token to access external repository'
     required: false
@@ -25,6 +28,7 @@ runs:
     - ${{ inputs.repo }}
     - ${{ inputs.version }}
     - ${{ inputs.file }}
+    - ${{ inputs.target }}
     - ${{ inputs.token }}
 
 outputs:
