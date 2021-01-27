@@ -38,6 +38,6 @@ with:
   repo: "dsaltares/godot-wild-jam-18"
   version: "latest"
   file: "plague-linux.zip"
-  target: "/tmp/plague-linux.zip"
+  target: "subdir/plague-linux.zip"
   token: ${{ secrets.YOUR_TOKEN }}
 ```
