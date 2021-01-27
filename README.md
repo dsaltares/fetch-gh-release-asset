@@ -18,7 +18,7 @@ The release version to fetch from. Default `"latest"`. If not `"latest"`, this h
 
 ### `target`
 
-Optional target file path
+Optional target file path. Only supports paths to subdirectories of the Github Actions workspace directory
 
 ### `token`
 
@@ -38,5 +38,6 @@ with:
   repo: "dsaltares/godot-wild-jam-18"
   version: "latest"
   file: "plague-linux.zip"
+  target: "/tmp/plague-linux.zip"
   token: ${{ secrets.YOUR_TOKEN }}
 ```
