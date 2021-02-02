@@ -16,7 +16,12 @@ The release version to fetch from. Default `"latest"`. If not `"latest"`, this h
 
 **Required** The name of the file in the release.
 
+### `target`
+
+Optional target file path. Only supports paths to subdirectories of the Github Actions workspace directory
+
 ### `token`
+
 Optional Personal Access Token to access repository. You need to either specify this or use the ``secrets.GITHUB_TOKEN`` environment variable. Note that if you are working with a private repository, you cannot use the default ``secrets.GITHUB_TOKEN`` - you have to set up a [personal access token with at least the scope org:hook](https://github.com/dsaltares/fetch-gh-release-asset/issues/10#issuecomment-668665447).
 
 ## Outputs
@@ -33,5 +38,6 @@ with:
   repo: "dsaltares/godot-wild-jam-18"
   version: "latest"
   file: "plague-linux.zip"
+  target: "subdir/plague-linux.zip"
   token: ${{ secrets.YOUR_TOKEN }}
 ```
