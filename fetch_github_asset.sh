@@ -55,6 +55,7 @@ curl \
   -L \
   -H "Accept: application/octet-stream" \
   "$API_URL/releases/assets/$ASSET_ID" \
+  --create-dirs \
   -o ${TARGET}
 
 echo "::set-output name=version::$TAG_VERSION"
