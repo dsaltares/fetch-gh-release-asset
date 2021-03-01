@@ -44,4 +44,4 @@ with:
 
 ## Support
 
-This action only supports Linux runners as this is a [docker container](https://docs.github.com/en/actions/creating-actions/about-actions#types-of-actions) action. If you encounter `Error: Container action is only supported on Linux` then you are using non-linux runner. If you need cross-platform support, you may try [pozetroninc/github-action-get-latest-release](https://github.com/pozetroninc/github-action-get-latest-release), which uses JavaScript and works cross-platform.
+This action only supports Linux runners as this is a [docker container](https://docs.github.com/en/actions/creating-actions/about-actions#types-of-actions) action. If you encounter `Error: Container action is only supported on Linux` then you are using non-linux runner.
