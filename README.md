@@ -41,3 +41,7 @@ with:
   target: "subdir/plague-linux.zip"
   token: ${{ secrets.YOUR_TOKEN }}
 ```
+
+## Support
+
+This action only supports Linux runners as this is a [docker container](https://docs.github.com/en/actions/creating-actions/about-actions#types-of-actions) action. If you encounter `Error: Container action is only supported on Linux` then you are using non-linux runner.
