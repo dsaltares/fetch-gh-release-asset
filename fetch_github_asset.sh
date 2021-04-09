@@ -27,8 +27,8 @@ if ! [[ -z ${INPUT_TOKEN} ]]; then
   TOKEN=$INPUT_TOKEN
 fi
 
-API_URL="https://$TOKEN:@api.github.com/repos/$REPO"
-RELEASE_DATA=$(curl $API_URL/releases/${INPUT_VERSION})
+API_URL="https://api.github.com/repos/$REPO"
+RELEASE_DATA=$(curl -H "Authorization: token $TOKEN" $API_URL/releases/${INPUT_VERSION})
 MESSAGE=$(echo $RELEASE_DATA | jq -r ".message")
 
 if [[ "$MESSAGE" == "Not Found" ]]; then
@@ -54,6 +54,7 @@ curl \
   -J \
   -L \
   -H "Accept: application/octet-stream" \
+  -H "Authorization: token $TOKEN" \
   "$API_URL/releases/assets/$ASSET_ID" \
   --create-dirs \
   -o ${TARGET}
