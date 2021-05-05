@@ -1,28 +1,28 @@
 # Fetch GH Release Asset
 
-This action downloads an asset from a Github release. Private repos are supported.
+This action downloads an asset from a GitHub release and provides some release details as output. Private repos are supported.
 
 ## Inputs
 
-### `repo`
+### `token`
 
-The `org/repo`. Defaults to the current repo.
-
-### `version`
-
-The release version to fetch from. Default `"latest"`. If not `"latest"`, this has to be in the form `tags/<tag_name>` or `<release_id>`.
+**Required** The GitHub token. Typically this will be `${{ secrets.GITHUB_TOKEN }}`
 
 ### `file`
 
-**Required** The name of the file in the release.
+**Required** The name of the file to be downloaded.
+
+### `repo`
+
+The `org/repo` containing the release. Defaults to the current repo.
+
+### `version`
+
+The release version to fetch from in the form `tags/<tag_name>` or `<release_id>`. Defaults to `latest`.
 
 ### `target`
 
-Optional target file path. Only supports paths to subdirectories of the Github Actions workspace directory
-
-### `token`
-
-**Required** The GitHub token. Typically this will be `${{ secrets.GITHUB_TOKEN }}`.
+Target file path. Only supports paths to subdirectories of the GitHub Actions workspace directory
 
 ## Outputs
 

@@ -3,18 +3,18 @@ description: 'Downloads an asset from a Github release'
 
 inputs:
   repo:
-    description: 'org/repo to download from'
+    description: 'The `org/repo` containing the release.'
     required: false
     default: ''
   version:
-    description: 'version of the release to download from'
+    description: 'The release version to fetch from in the form `tags/<tag_name>` or `<release_id>`.'
     required: false
     default: 'latest'
   file:
-    description: 'name of the file in the release to download'
+    description: 'The name of the file to be downloaded.'
     required: true
   target:
-    description: 'name of the target file path'
+    description: 'Target file path.'
     required: false
   token:
     description: 'The GitHub token. Typically this will be secrets.GITHUB_TOKEN'
