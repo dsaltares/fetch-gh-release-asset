@@ -44,6 +44,8 @@ fi
 
 ASSET_ID=$(echo $RELEASE_DATA | jq -r ".assets | map(select(.name == \"${INPUT_FILE}\"))[0].id")
 TAG_VERSION=$(echo $RELEASE_DATA | jq -r ".tag_name" | sed -e "s/^v//" | sed -e "s/^v.//")
+RELEASE_NAME=$(echo $RELEASE_DATA | jq -r ".name")
+RELEASE_BODY=$(echo $RELEASE_DATA | jq -r ".body")
 
 if [[ -z "$ASSET_ID" ]]; then
   echo "Could not find asset id"
@@ -60,3 +62,5 @@ curl \
   -o ${TARGET}
 
 echo "::set-output name=version::$TAG_VERSION"
+echo "::set-output name=name::$RELEASE_NAME"
+echo "::set-output name=body::$RELEASE_BODY"

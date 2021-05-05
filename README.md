@@ -30,6 +30,14 @@ Optional Personal Access Token to access repository. You need to either specify 
 
 The version number of the release tag. Can be used to deploy for example to itch.io
 
+### `name`
+
+[Also called a title of a release](https://docs.github.com/en/github/administering-a-repository/managing-releases-in-a-repository). Defaults to the same value as `version` if not specified when creating a release. 
+
+### `body`
+
+The body (description) of a release.
+
 ## Example usage
 
 ```yaml
