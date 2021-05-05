@@ -44,7 +44,7 @@ The body (description) of a release.
 uses: dsaltares/fetch-gh-release-asset@master
 with:
   repo: "dsaltares/godot-wild-jam-18"
-  version: "latest"
+  version: "tags/v0.1.18"
   file: "plague-linux.zip"
   target: "subdir/plague-linux.zip"
   token: ${{ secrets.GITHUB_TOKEN }}

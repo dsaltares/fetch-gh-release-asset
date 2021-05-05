@@ -20,6 +20,7 @@ jobs:
         uses: ./
         with:
           repo: "dsaltares/godot-wild-jam-18"
+          version: "tags/v0.1.18"
           file: "plague-linux.zip"
           target: "subdir/plague-linux.zip"
           token: ${{ secrets.GITHUB_TOKEN }}
