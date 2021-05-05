@@ -22,7 +22,7 @@ Optional target file path. Only supports paths to subdirectories of the Github A
 
 ### `token`
 
-Optional Personal Access Token to access repository. You need to either specify this or use the ``secrets.GITHUB_TOKEN`` environment variable.
+**Required** The GitHub token. Typically this will be `${{ secrets.GITHUB_TOKEN }}`.
 
 ## Outputs
 
@@ -47,7 +47,7 @@ with:
   version: "latest"
   file: "plague-linux.zip"
   target: "subdir/plague-linux.zip"
-  token: ${{ secrets.YOUR_TOKEN }}
+  token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ## Support

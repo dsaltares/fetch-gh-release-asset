@@ -17,9 +17,8 @@ inputs:
     description: 'name of the target file path'
     required: false
   token:
-    description: 'optional Personal Access Token to access external repository'
-    required: false
-    default: ''
+    description: 'The GitHub token. Typically this will be secrets.GITHUB_TOKEN'
+    required: true
 
 runs:
   using: 'docker'
