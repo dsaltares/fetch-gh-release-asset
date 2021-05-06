@@ -1,28 +1,28 @@
 # Fetch GH Release Asset
 
-This action downloads an asset from a Github release. Private repos are supported.
+This action downloads an asset from a GitHub release and provides some release details as output. Private repos are supported.
 
 ## Inputs
 
-### `repo`
+### `token`
 
-The `org/repo`. Defaults to the current repo.
-
-### `version`
-
-The release version to fetch from. Default `"latest"`. If not `"latest"`, this has to be in the form `tags/<tag_name>` or `<release_id>`.
+**Required** The GitHub token. Typically this will be `${{ secrets.GITHUB_TOKEN }}`
 
 ### `file`
 
-**Required** The name of the file in the release.
+**Required** The name of the file to be downloaded.
+
+### `repo`
+
+The `org/repo` containing the release. Defaults to the current repo.
+
+### `version`
+
+The release version to fetch from in the form `tags/<tag_name>` or `<release_id>`. Defaults to `latest`.
 
 ### `target`
 
-Optional target file path. Only supports paths to subdirectories of the Github Actions workspace directory
-
-### `token`
-
-Optional Personal Access Token to access repository. You need to either specify this or use the ``secrets.GITHUB_TOKEN`` environment variable.
+Target file path. Only supports paths to subdirectories of the GitHub Actions workspace directory
 
 ## Outputs
 
@@ -30,16 +30,24 @@ Optional Personal Access Token to access repository. You need to either specify 
 
 The version number of the release tag. Can be used to deploy for example to itch.io
 
+### `name`
+
+[Also called a title of a release](https://docs.github.com/en/github/administering-a-repository/managing-releases-in-a-repository). Defaults to the same value as `version` if not specified when creating a release. 
+
+### `body`
+
+The body (description) of a release.
+
 ## Example usage
 
 ```yaml
 uses: dsaltares/fetch-gh-release-asset@master
 with:
   repo: "dsaltares/godot-wild-jam-18"
-  version: "latest"
+  version: "tags/v0.1.18"
   file: "plague-linux.zip"
   target: "subdir/plague-linux.zip"
-  token: ${{ secrets.YOUR_TOKEN }}
+  token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ## Support
