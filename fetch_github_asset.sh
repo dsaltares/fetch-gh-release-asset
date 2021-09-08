@@ -40,7 +40,7 @@ if [[ "$MESSAGE" == "Not Found" ]]; then
   echo "asset: $INPUT_FILE"
   echo "target: $TARGET"
   echo "version: $INPUT_VERSION"
-  exit 1
+  exit 0
 fi
 
 echo "MESSAGE: '$RELEASE_DATA'"
