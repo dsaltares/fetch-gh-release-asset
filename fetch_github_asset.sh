@@ -80,7 +80,7 @@ else
       "$API_URL/releases/assets/$ASSET_ID" \
       --create-dirs \
       -o "${TARGET}" \
-      && echo $HASH' *'$TARGET | shasum -c && break 
+      && echo $HASH' *'$TARGET | sha256sum -c && break 
     n=$((n+1)) 
     sleep 15
   done
