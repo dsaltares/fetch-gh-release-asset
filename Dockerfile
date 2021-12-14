@@ -5,6 +5,7 @@ RUN	apk add --no-cache \
   ca-certificates \
   curl \
   wget \
+  sha256sum \
   jq
 
 COPY fetch_github_asset.sh /fetch_github_asset.sh
