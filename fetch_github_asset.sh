@@ -68,7 +68,7 @@ if [[ -z $HASH ]]; then
     "$API_URL/releases/assets/$ASSET_ID" \
     --create-dirs \
     -o "${TARGET}"
-elif
+else
   n=0
   until [ "$n" -ge 2 ]
   do
@@ -84,7 +84,6 @@ elif
     n=$((n+1)) 
     sleep 15
   done
-  
 fi
 
 echo "::set-output name=version::$TAG_VERSION"
