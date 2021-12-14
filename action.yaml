@@ -19,6 +19,9 @@ inputs:
   token:
     description: 'The GitHub token. Typically this will be secrets.GITHUB_TOKEN'
     required: true
+  hash:
+    description: 'Hash which should match the file. Retries once if hash does not match.'
+    required: false
 
 runs:
   using: 'docker'
@@ -29,6 +32,7 @@ runs:
     - ${{ inputs.file }}
     - ${{ inputs.target }}
     - ${{ inputs.token }}
+    - ${{ inputs.hash }}
 
 outputs:
   version:

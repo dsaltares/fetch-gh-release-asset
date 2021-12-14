@@ -27,6 +27,10 @@ if [[ -n ${INPUT_TOKEN} ]]; then
   TOKEN=$INPUT_TOKEN
 fi
 
+if [[ -n ${INPUT_HASH} ]]; then
+  HASH=$INPUT_HASH
+fi
+
 API_URL="https://api.github.com/repos/$REPO"
 RELEASE_DATA=$(curl ${TOKEN:+"-H"} ${TOKEN:+"Authorization: token ${TOKEN}"} \
                     "$API_URL/releases/${INPUT_VERSION}")
@@ -55,14 +59,33 @@ if [[ -z "$ASSET_ID" ]]; then
   exit 1
 fi
 
-curl \
-  -J \
-  -L \
-  -H "Accept: application/octet-stream" \
-  ${TOKEN:+"-H"} ${TOKEN:+"Authorization: token ${TOKEN}"} \
-  "$API_URL/releases/assets/$ASSET_ID" \
-  --create-dirs \
-  -o "${TARGET}"
+if [[ -z $HASH ]]; then
+  curl \
+    -J \
+    -L \
+    -H "Accept: application/octet-stream" \
+    ${TOKEN:+"-H"} ${TOKEN:+"Authorization: token ${TOKEN}"} \
+    "$API_URL/releases/assets/$ASSET_ID" \
+    --create-dirs \
+    -o "${TARGET}"
+elif
+  n=0
+  until [ "$n" -ge 2 ]
+  do
+    curl \
+      -J \
+      -L \
+      -H "Accept: application/octet-stream" \
+      ${TOKEN:+"-H"} ${TOKEN:+"Authorization: token ${TOKEN}"} \
+      "$API_URL/releases/assets/$ASSET_ID" \
+      --create-dirs \
+      -o "${TARGET}" \
+      && echo $HASH' *'$TARGET | shasum -c && break 
+    n=$((n+1)) 
+    sleep 15
+  done
+  
+fi
 
 echo "::set-output name=version::$TAG_VERSION"
 echo "::set-output name=name::$RELEASE_NAME"
