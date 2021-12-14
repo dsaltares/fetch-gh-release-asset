@@ -1,6 +1,6 @@
 FROM alpine:latest
 
-RUN	apk update && apk add --no-cache \
+RUN	apk add --no-cache \
   bash \
   ca-certificates \
   curl \
