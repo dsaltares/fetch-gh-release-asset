@@ -69,6 +69,7 @@ if [[ -z $HASH ]]; then
     --create-dirs \
     -o "${TARGET}"
 else
+  SUCCESS=0
   n=0
   until [ "$n" -ge 2 ]
   do
@@ -80,10 +81,20 @@ else
       "$API_URL/releases/assets/$ASSET_ID" \
       --create-dirs \
       -o "${TARGET}" \
-      && echo $HASH' *'$TARGET | sha256sum -c && break 
+      && echo $HASH' *'$TARGET | sha256sum -c
+    if [[ $? -eq 1 ]]; then
+        SUCCESS=1
+    else
+        SUCCESS=0
+        break
+    fi 
     n=$((n+1)) 
     sleep 15
   done
+  if [[ SUCCESS -eq 1 ]]; then
+      echo "Could not download file with matching hash"
+      exit 1
+  fi
 fi
 
 echo "::set-output name=version::$TAG_VERSION"
