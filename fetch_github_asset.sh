@@ -45,7 +45,7 @@ fi
 
 echo "MESSAGE: '$RELEASE_DATA'"
 
-ASSET_ID=$(echo "$RELEASE_DATA" | jq -r ".assets | map(select(.name == \"${INPUT_FILE}\"))[0].id")
+ASSET_ID=$(echo "$RELEASE_DATA" | jq -r ".assets | .[] | select(.name == \"${INPUT_FILE}\") | .id")
 TAG_VERSION=$(echo "$RELEASE_DATA" | jq -r ".tag_name" | sed -e "s/^v//" | sed -e "s/^v.//")
 RELEASE_NAME=$(echo "$RELEASE_DATA" | jq -r ".name")
 RELEASE_BODY=$(echo "$RELEASE_DATA" | jq -r ".body")
