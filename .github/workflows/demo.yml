@@ -10,14 +10,12 @@ jobs:
   demo:
     name: Demo
     runs-on: ubuntu-latest
-    
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      
       - name: Create a subdirectory
-        run: mkdir subdir
-      
+        run: |
+          mkdir subdir
       - name: Get the latest release
         id: get_release
         uses: ./
@@ -26,7 +24,6 @@ jobs:
           version: "tags/v0.1.18"
           file: "plague-linux.zip"
           target: "subdir/plague-linux.zip"
-      
       - name: Display the details
         run: |
           echo ${{ steps.get_release.outputs.version }}
