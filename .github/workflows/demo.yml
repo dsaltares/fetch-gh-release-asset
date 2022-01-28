@@ -1,7 +1,7 @@
 name: Demo
 
 on:
-  push
+  [ push ]
 
 jobs:
   demo:
