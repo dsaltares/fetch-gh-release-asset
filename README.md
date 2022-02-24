@@ -4,10 +4,6 @@ This action downloads an asset from a GitHub release and provides some release d
 
 ## Inputs
 
-### `token`
-
-**Required** The GitHub token. Typically this will be `${{ secrets.GITHUB_TOKEN }}`
-
 ### `file`
 
 **Required** The name of the file to be downloaded.
@@ -15,6 +11,10 @@ This action downloads an asset from a GitHub release and provides some release d
 ### `repo`
 
 The `org/repo` containing the release. Defaults to the current repo.
+
+### `token`
+
+The GitHub token. Defaults to `${{ secrets.GITHUB_TOKEN }}`
 
 ### `version`
 

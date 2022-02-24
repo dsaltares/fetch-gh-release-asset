@@ -19,6 +19,7 @@ inputs:
   token:
     description: 'The GitHub token. Typically this will be secrets.GITHUB_TOKEN'
     required: true
+    default: ${{ github.token }}
   hash:
     description: 'Hash which should match the file. Retries once if hash does not match.'
     required: false
