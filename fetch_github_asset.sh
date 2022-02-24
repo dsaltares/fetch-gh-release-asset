@@ -31,6 +31,12 @@ if [[ -n ${INPUT_HASH} ]]; then
   HASH=$INPUT_HASH
 fi
 
+if [[ -n ${INPUT_RETRIES//[0-9]/} ]]; then
+  RETRIES=$INPUT_RETRIES
+else
+  RETRIES=0
+fi
+
 API_URL="https://api.github.com/repos/$REPO"
 RELEASE_DATA=$(curl ${TOKEN:+"-H"} ${TOKEN:+"Authorization: token ${TOKEN}"} \
                     "$API_URL/releases/${INPUT_VERSION}")
@@ -63,6 +69,8 @@ if [[ -z $HASH ]]; then
   curl \
     -J \
     -L \
+    --retry $RETRIES \
+    --retry-delay 5 \
     -H "Accept: application/octet-stream" \
     ${TOKEN:+"-H"} ${TOKEN:+"Authorization: token ${TOKEN}"} \
     "$API_URL/releases/assets/$ASSET_ID" \
@@ -71,7 +79,7 @@ if [[ -z $HASH ]]; then
 else
   SUCCESS=0
   n=0
-  until [ "$n" -ge 2 ]
+  until [ "$n" -ge $RETRIES+1 ]
   do
     curl \
       -J \

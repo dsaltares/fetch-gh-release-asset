@@ -21,8 +21,12 @@ inputs:
     required: true
     default: ${{ github.token }}
   hash:
-    description: 'Hash which should match the file. Retries once if hash does not match.'
+    description: 'Hash which should match the file. If present, check the hash of the file. If the hash does not match, exit with failure.'
     required: false
+  retries: 
+    description: 'defaults to 0, this is the number of times to retry'
+    required: false
+    default: 0
 
 runs:
   using: 'docker'
@@ -34,6 +38,7 @@ runs:
     - ${{ inputs.target }}
     - ${{ inputs.token }}
     - ${{ inputs.hash }}
+    - ${{ inputs.retries }}
 
 outputs:
   version:
