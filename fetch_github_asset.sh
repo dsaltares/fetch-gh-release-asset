@@ -79,7 +79,7 @@ if [[ -z $HASH ]]; then
 else
   SUCCESS=0
   n=0
-  until [ "$n" -ge $((RETRIES+1) ]
+  until [ "$n" -ge $((RETRIES+1)) ]
   do
     curl \
       -J \
