@@ -20,7 +20,10 @@ inputs:
     description: 'The GitHub token. Typically this will be secrets.GITHUB_TOKEN'
     required: false
     default: ${{ github.token }}
-
+  regex:
+    description: 'Use regex for file input'
+    type: boolean
+    required: false
 runs:
   using: 'docker'
   image: 'Dockerfile'
@@ -30,6 +33,7 @@ runs:
     - ${{ inputs.file }}
     - ${{ inputs.target }}
     - ${{ inputs.token }}
+    - ${{ inputs.regex }}
 
 outputs:
   version:
