@@ -22,7 +22,11 @@ The release version to fetch from in the form `tags/<tag_name>` or `<release_id>
 
 ### `target`
 
-Target file path. Only supports paths to subdirectories of the GitHub Actions workspace directory
+Target file path. Only supports paths to subdirectories of the GitHub Actions workspace directory.
+
+### `regex`
+
+Boolean indicating if `file` is to be interpreted as regular expression. Defaults to `false`.
 
 ## Outputs
 
@@ -40,6 +44,17 @@ The body (description) of a release.
 
 ## Example usage
 
+Save a single asset as a new file `<workspace>/plague-linux.zip`:
+```yaml
+uses: dsaltares/fetch-gh-release-asset@master
+with:
+  repo: "dsaltares/godot-wild-jam-18"
+  version: "tags/v0.1.18"
+  file: "plague-linux.zip"
+  token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+Save a single asset as a new file `<workspace>/subdir/plague-linux.zip`:
 ```yaml
 uses: dsaltares/fetch-gh-release-asset@master
 with:
@@ -47,6 +62,29 @@ with:
   version: "tags/v0.1.18"
   file: "plague-linux.zip"
   target: "subdir/plague-linux.zip"
+  token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+Save a range of assets as new files in directory `<workspace>`:
+```yaml
+uses: dsaltares/fetch-gh-release-asset@master
+with:
+  repo: "dsaltares/godot-wild-jam-18"
+  version: "tags/v0.1.18"
+  regex: true
+  file: "plague-.*\\.zip"
+  token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+Save a range of assets as new files in directory `<workspace>/subdir`:
+```yaml
+uses: dsaltares/fetch-gh-release-asset@master
+with:
+  repo: "dsaltares/godot-wild-jam-18"
+  version: "tags/v0.1.18"
+  regex: true
+  file: "plague-.*\\.zip"
+  target: "subdir/"
   token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
