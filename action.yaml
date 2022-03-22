@@ -24,16 +24,10 @@ inputs:
     description: 'Use regex for file input'
     type: boolean
     required: false
+    default: false
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
-  args:
-    - ${{ inputs.repo }}
-    - ${{ inputs.version }}
-    - ${{ inputs.file }}
-    - ${{ inputs.target }}
-    - ${{ inputs.token }}
-    - ${{ inputs.regex }}
+  using: 'node16'
+  main: 'dist/index.js'
 
 outputs:
   version:
