@@ -47,14 +47,17 @@ interface FetchAssetFileOptions {
   readonly outputPath: string
   readonly owner: string
   readonly repo: string
+  readonly token: string
 }
 
-const fetchAssetFile = async (octokit: ReturnType<typeof github.getOctokit>, { id, outputPath, owner, repo }: FetchAssetFileOptions): Promise<void> => {
+const MAX_RETRY = 5
+const RETRY_INTERVAL = 1000
+
+const fetchAssetFile = async (octokit: ReturnType<typeof github.getOctokit>, { id, outputPath, owner, repo, token }: FetchAssetFileOptions): Promise<void> => {
   const {
     body,
     headers: {
       accept,
-      authorization,
       'user-agent': userAgent
     },
     method,
@@ -67,25 +70,32 @@ const fetchAssetFile = async (octokit: ReturnType<typeof github.getOctokit>, { i
     owner,
     repo
   })
-  let headers: HeadersInit = { Accept: accept }
-  if (typeof authorization !== 'undefined') {
-    headers = {
-      ...headers,
-      Authorization: authorization
-    }
+  let headers: HeadersInit = {
+    accept,
+    authorization: `token ${token}`
   }
-  if (typeof userAgent !== 'undefined') {
-    headers = {
-      ...headers,
-      'User-Agent': userAgent
+  if (typeof userAgent !== 'undefined') headers = { ...headers, 'user-agent': userAgent }
+
+  let i = 0
+  while (true) {
+    const response = await fetch(url, { body, headers, method })
+    if (!response.ok) {
+      if (i < MAX_RETRY) {
+        i++
+        await new Promise(resolve => setTimeout(resolve, RETRY_INTERVAL))
+        continue
+      } else {
+        const text = await response.text()
+        core.warning(text)
+        throw new Error('Invalid response')
+      }
     }
+    const blob = await response.blob()
+    const arrayBuffer = await blob.arrayBuffer()
+    await mkdir(dirname(outputPath), { recursive: true })
+    await writeFile(outputPath, new Uint8Array(arrayBuffer))
+    return
   }
-  const response = await fetch(url, { body, headers, method })
-  if (!response.ok) throw new Error('Invalid response')
-  const blob = await response.blob()
-  const arrayBuffer = await blob.arrayBuffer()
-  await mkdir(dirname(outputPath), { recursive: true })
-  await writeFile(outputPath, new Uint8Array(arrayBuffer))
 }
 
 const printOutput = (release: GetReleaseResult): void => {
@@ -107,7 +117,7 @@ const main = async (): Promise<void> => {
 
   const asset = release.data.assets.find(e => e.name === file)
   if (typeof asset === 'undefined') throw new Error('Could not find asset id')
-  await fetchAssetFile(octokit, { id: asset.id, outputPath: target, owner, repo })
+  await fetchAssetFile(octokit, { id: asset.id, outputPath: target, owner, repo, token })
   printOutput(release)
 }
 
@@ -125,7 +135,7 @@ const mainRegex = async (): Promise<void> => {
   const assets = release.data.assets.filter(e => regexp.test(e.name))
   if (assets.length === 0) throw new Error('Could not find asset id')
   for (const asset of assets) {
-    await fetchAssetFile(octokit, { id: asset.id, outputPath: `${target}${asset.name}`, owner, repo })
+    await fetchAssetFile(octokit, { id: asset.id, outputPath: `${target}${asset.name}`, owner, repo, token })
   }
   printOutput(release)
 }

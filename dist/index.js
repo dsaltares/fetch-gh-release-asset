@@ -1249,10 +1249,10 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
       command_1.issueCommand("error", utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
     }
     exports.error = error;
-    function warning(message, properties = {}) {
+    function warning2(message, properties = {}) {
       command_1.issueCommand("warning", utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
     }
-    exports.warning = warning;
+    exports.warning = warning2;
     function notice(message, properties = {}) {
       command_1.issueCommand("notice", utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
     }
@@ -12113,12 +12113,13 @@ var getRelease = (octokit, { owner, repo, version }) => {
     throw new Error("Malformed version");
   }
 };
-var fetchAssetFile = async (octokit, { id, outputPath, owner, repo }) => {
+var MAX_RETRY = 5;
+var RETRY_INTERVAL = 1e3;
+var fetchAssetFile = async (octokit, { id, outputPath, owner, repo, token }) => {
   const {
     body,
     headers: {
       accept,
-      authorization,
       "user-agent": userAgent
     },
     method,
@@ -12131,26 +12132,32 @@ var fetchAssetFile = async (octokit, { id, outputPath, owner, repo }) => {
     owner,
     repo
   });
-  let headers = { Accept: accept };
-  if (typeof authorization !== "undefined") {
-    headers = {
-      ...headers,
-      Authorization: authorization
-    };
+  let headers = {
+    accept,
+    authorization: `token ${token}`
+  };
+  if (typeof userAgent !== "undefined")
+    headers = { ...headers, "user-agent": userAgent };
+  let i2 = 0;
+  while (true) {
+    const response = await fetch(url, { body, headers, method });
+    if (!response.ok) {
+      if (i2 < MAX_RETRY) {
+        i2++;
+        await new Promise((resolve) => setTimeout(resolve, RETRY_INTERVAL));
+        continue;
+      } else {
+        const text = await response.text();
+        core.warning(text);
+        throw new Error("Invalid response");
+      }
+    }
+    const blob = await response.blob();
+    const arrayBuffer = await blob.arrayBuffer();
+    await (0, import_promises.mkdir)((0, import_path.dirname)(outputPath), { recursive: true });
+    await (0, import_promises.writeFile)(outputPath, new Uint8Array(arrayBuffer));
+    return;
   }
-  if (typeof userAgent !== "undefined") {
-    headers = {
-      ...headers,
-      "User-Agent": userAgent
-    };
-  }
-  const response = await fetch(url, { body, headers, method });
-  if (!response.ok)
-    throw new Error("Invalid response");
-  const blob = await response.blob();
-  const arrayBuffer = await blob.arrayBuffer();
-  await (0, import_promises.mkdir)((0, import_path.dirname)(outputPath), { recursive: true });
-  await (0, import_promises.writeFile)(outputPath, new Uint8Array(arrayBuffer));
 };
 var printOutput = (release) => {
   core.setOutput("version", release.data.tag_name);
@@ -12169,7 +12176,7 @@ var main = async () => {
   const asset = release.data.assets.find((e2) => e2.name === file);
   if (typeof asset === "undefined")
     throw new Error("Could not find asset id");
-  await fetchAssetFile(octokit, { id: asset.id, outputPath: target, owner, repo });
+  await fetchAssetFile(octokit, { id: asset.id, outputPath: target, owner, repo, token });
   printOutput(release);
 };
 var mainRegex = async () => {
@@ -12185,7 +12192,7 @@ var mainRegex = async () => {
   if (assets.length === 0)
     throw new Error("Could not find asset id");
   for (const asset of assets) {
-    await fetchAssetFile(octokit, { id: asset.id, outputPath: `${target}${asset.name}`, owner, repo });
+    await fetchAssetFile(octokit, { id: asset.id, outputPath: `${target}${asset.name}`, owner, repo, token });
   }
   printOutput(release);
 };
