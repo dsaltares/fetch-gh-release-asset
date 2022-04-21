@@ -12110,7 +12110,7 @@ var getRelease = (octokit, { owner, repo, version }) => {
   } else if (tagsMatch !== null && tagsMatch[1]) {
     return octokit.rest.repos.getReleaseByTag({ owner, repo, tag: tagsMatch[1] });
   } else {
-    throw new Error("Malformed version");
+    return octokit.rest.repos.getRelease({ owner, repo, release_id: Math.trunc(Number(version)) });
   }
 };
 var MAX_RETRY = 5;
