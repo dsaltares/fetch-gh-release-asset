@@ -1,11 +1,11 @@
+/* eslint-disable no-void */
+import { dirname } from 'path'
+import { mkdir, writeFile } from 'fs/promises'
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 
-import { mkdir, writeFile } from 'fs/promises'
-
 import type { Context } from '@actions/github/lib/context'
 import type { HeadersInit } from 'node-fetch'
-import { dirname } from 'path'
 import fetch from 'node-fetch'
 
 interface GetRepoResult {
@@ -141,7 +141,7 @@ const mainRegex = async (): Promise<void> => {
 }
 
 if (core.getBooleanInput('regex', { required: false })) {
-  mainRegex()
+  void mainRegex()
 } else {
-  main()
+  void main()
 }
