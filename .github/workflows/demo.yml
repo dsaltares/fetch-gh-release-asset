@@ -27,10 +27,10 @@ jobs:
         id: get_release
         uses: ./
         with:
-          repo: "dsaltares/godot-wild-jam-18"
-          version: "tags/v0.1.18"
-          file: "plague-linux.zip"
-          target: "subdir/plague-linux.zip"
+          repo: 'dsaltares/godot-wild-jam-18'
+          version: 'tags/v0.1.18'
+          file: 'plague-linux.zip'
+          target: 'subdir/plague-linux.zip'
       - name: Display the outputs
         run: |
           echo "${{ steps.get_release.outputs.version }}"
@@ -63,10 +63,10 @@ jobs:
         id: get_release
         uses: ./
         with:
-          repo: "dsaltares/godot-wild-jam-18"
-          version: "23960137"
-          file: "plague-linux.zip"
-          target: "subdir/plague-linux.zip"
+          repo: 'dsaltares/godot-wild-jam-18'
+          version: '23960137'
+          file: 'plague-linux.zip'
+          target: 'subdir/plague-linux.zip'
       - name: Display the outputs
         run: |
           echo "${{ steps.get_release.outputs.version }}"
@@ -78,4 +78,3 @@ jobs:
       - name: Display the file (Windows)
         run: dir subdir/plague-linux.zip
         if: matrix.runs-on == 'windows-latest'
-                  

@@ -36,7 +36,7 @@ The version number of the release tag. Can be used to deploy for example to itch
 
 ### `name`
 
-[Also called a title of a release](https://docs.github.com/en/github/administering-a-repository/managing-releases-in-a-repository). Defaults to the same value as `version` if not specified when creating a release. 
+[Also called a title of a release](https://docs.github.com/en/github/administering-a-repository/managing-releases-in-a-repository). Defaults to the same value as `version` if not specified when creating a release.
 
 ### `body`
 
@@ -45,46 +45,50 @@ The body (description) of a release.
 ## Example usage
 
 Save a single asset as a new file `<workspace>/plague-linux.zip`:
+
 ```yaml
 uses: dsaltares/fetch-gh-release-asset@master
 with:
-  repo: "dsaltares/godot-wild-jam-18"
-  version: "tags/v0.1.18"
-  file: "plague-linux.zip"
+  repo: 'dsaltares/godot-wild-jam-18'
+  version: 'tags/v0.1.18'
+  file: 'plague-linux.zip'
   token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 Save a single asset as a new file `<workspace>/subdir/plague-linux.zip`:
+
 ```yaml
 uses: dsaltares/fetch-gh-release-asset@master
 with:
-  repo: "dsaltares/godot-wild-jam-18"
-  version: "tags/v0.1.18"
-  file: "plague-linux.zip"
-  target: "subdir/plague-linux.zip"
+  repo: 'dsaltares/godot-wild-jam-18'
+  version: 'tags/v0.1.18'
+  file: 'plague-linux.zip'
+  target: 'subdir/plague-linux.zip'
   token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 Save a range of assets as new files in directory `<workspace>`:
+
 ```yaml
 uses: dsaltares/fetch-gh-release-asset@master
 with:
-  repo: "dsaltares/godot-wild-jam-18"
-  version: "tags/v0.1.18"
+  repo: 'dsaltares/godot-wild-jam-18'
+  version: 'tags/v0.1.18'
   regex: true
   file: "plague-.*\\.zip"
   token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 Save a range of assets as new files in directory `<workspace>/subdir`:
+
 ```yaml
 uses: dsaltares/fetch-gh-release-asset@master
 with:
-  repo: "dsaltares/godot-wild-jam-18"
-  version: "tags/v0.1.18"
+  repo: 'dsaltares/godot-wild-jam-18'
+  version: 'tags/v0.1.18'
   regex: true
   file: "plague-.*\\.zip"
-  target: "subdir/"
+  target: 'subdir/'
   token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
