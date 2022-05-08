@@ -136,8 +136,10 @@ const main = async (): Promise<void> => {
   const file = core.getInput('file', { required: true });
   const usesRegex = core.getBooleanInput('regex', { required: false });
   const target = inputTarget === '' ? file : inputTarget;
+  const baseUrl =
+    core.getInput('octokitBaseUrl', { required: false }) || undefined;
 
-  const octokit = github.getOctokit(token);
+  const octokit = github.getOctokit(token, { baseUrl });
   const release = await getRelease(octokit, { owner, repo, version });
 
   const assetFilterFn = usesRegex

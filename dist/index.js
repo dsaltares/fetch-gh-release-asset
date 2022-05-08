@@ -12627,7 +12627,8 @@ var main = async () => {
   const file = core.getInput("file", { required: true });
   const usesRegex = core.getBooleanInput("regex", { required: false });
   const target = inputTarget === "" ? file : inputTarget;
-  const octokit = github.getOctokit(token);
+  const baseUrl = core.getInput("octokitBaseUrl", { required: false }) || void 0;
+  const octokit = github.getOctokit(token, { baseUrl });
   const release = await getRelease(octokit, { owner, repo, version });
   const assetFilterFn = usesRegex ? filterByRegex(file) : filterByFileName(file);
   const assets = release.data.assets.filter(assetFilterFn);

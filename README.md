@@ -28,6 +28,10 @@ Target file path. Only supports paths to subdirectories of the GitHub Actions wo
 
 Boolean indicating if `file` is to be interpreted as regular expression. Defaults to `false`.
 
+### `octokitBaseUrl`
+
+The Github API base URL. Useful if you are using Github Enterprise.
+
 ## Outputs
 
 ### `version`
