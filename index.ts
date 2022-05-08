@@ -138,12 +138,13 @@ const main = async (): Promise<void> => {
   const version = core.getInput('version', { required: false });
   const inputTarget = core.getInput('target', { required: false });
   const file = core.getInput('file', { required: true });
+  const usesRegex = core.getBooleanInput('regex', { required: false });
   const target = inputTarget === '' ? file : inputTarget;
 
   const octokit = github.getOctokit(token);
   const release = await getRelease(octokit, { owner, repo, version });
 
-  const assetFilterFn = core.getBooleanInput('regex', { required: false })
+  const assetFilterFn = usesRegex
     ? filterByRegex(file)
     : filterByFileName(file);
 
@@ -152,7 +153,7 @@ const main = async (): Promise<void> => {
   for (const asset of assets) {
     await fetchAssetFile(octokit, {
       id: asset.id,
-      outputPath: `${target}${asset.name}`,
+      outputPath: usesRegex ? `${target}${asset.name}` : target,
       owner,
       repo,
       token,

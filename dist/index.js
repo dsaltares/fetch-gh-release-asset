@@ -12358,17 +12358,18 @@ var main = async () => {
   const version = core.getInput("version", { required: false });
   const inputTarget = core.getInput("target", { required: false });
   const file = core.getInput("file", { required: true });
+  const usesRegex = core.getBooleanInput("regex", { required: false });
   const target = inputTarget === "" ? file : inputTarget;
   const octokit = github.getOctokit(token);
   const release = await getRelease(octokit, { owner, repo, version });
-  const assetFilterFn = core.getBooleanInput("regex", { required: false }) ? filterByRegex(file) : filterByFileName(file);
+  const assetFilterFn = usesRegex ? filterByRegex(file) : filterByFileName(file);
   const assets = release.data.assets.filter(assetFilterFn);
   if (assets.length === 0)
     throw new Error("Could not find asset id");
   for (const asset of assets) {
     await fetchAssetFile(octokit, {
       id: asset.id,
-      outputPath: `${target}${asset.name}`,
+      outputPath: usesRegex ? `${target}${asset.name}` : target,
       owner,
       repo,
       token
