@@ -1360,7 +1360,7 @@ var require_core = __commonJS({
       process.env["PATH"] = `${inputPath}${path.delimiter}${process.env["PATH"]}`;
     }
     exports.addPath = addPath;
-    function getInput2(name, options) {
+    function getInput(name, options) {
       const val = process.env[`INPUT_${name.replace(/ /g, "_").toUpperCase()}`] || "";
       if (options && options.required && !val) {
         throw new Error(`Input required and not supplied: ${name}`);
@@ -1370,16 +1370,16 @@ var require_core = __commonJS({
       }
       return val.trim();
     }
-    exports.getInput = getInput2;
+    exports.getInput = getInput;
     function getMultilineInput(name, options) {
-      const inputs = getInput2(name, options).split("\n").filter((x2) => x2 !== "");
+      const inputs = getInput(name, options).split("\n").filter((x2) => x2 !== "");
       return inputs;
     }
     exports.getMultilineInput = getMultilineInput;
-    function getBooleanInput2(name, options) {
+    function getBooleanInput(name, options) {
       const trueValue = ["true", "True", "TRUE"];
       const falseValue = ["false", "False", "FALSE"];
-      const val = getInput2(name, options);
+      const val = getInput(name, options);
       if (trueValue.includes(val))
         return true;
       if (falseValue.includes(val))
@@ -1387,12 +1387,12 @@ var require_core = __commonJS({
       throw new TypeError(`Input does not meet YAML 1.2 "Core Schema" specification: ${name}
 Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
     }
-    exports.getBooleanInput = getBooleanInput2;
-    function setOutput2(name, value) {
+    exports.getBooleanInput = getBooleanInput;
+    function setOutput(name, value) {
       process.stdout.write(os.EOL);
       command_1.issueCommand("set-output", { name }, value);
     }
-    exports.setOutput = setOutput2;
+    exports.setOutput = setOutput;
     function setCommandEcho(enabled) {
       command_1.issue("echo", enabled ? "on" : "off");
     }
@@ -1414,10 +1414,10 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
       command_1.issueCommand("error", utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
     }
     exports.error = error;
-    function warning2(message, properties = {}) {
+    function warning(message, properties = {}) {
       command_1.issueCommand("warning", utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
     }
-    exports.warning = warning2;
+    exports.warning = warning;
     function notice(message, properties = {}) {
       command_1.issueCommand("notice", utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
     }
@@ -1887,8 +1887,8 @@ var require_dist_node2 = __commonJS({
     function isKeyOperator(operator) {
       return operator === ";" || operator === "&" || operator === "?";
     }
-    function getValues(context2, operator, key, modifier) {
-      var value = context2[key], result = [];
+    function getValues(context, operator, key, modifier) {
+      var value = context[key], result = [];
       if (isDefined(value) && value !== "") {
         if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
           value = value.toString();
@@ -1948,7 +1948,7 @@ var require_dist_node2 = __commonJS({
         expand: expand.bind(null, template)
       };
     }
-    function expand(template, context2) {
+    function expand(template, context) {
       var operators = ["+", "#", ".", "/", ";", "?", "&"];
       return template.replace(/\{([^\{\}]+)\}|([^\{\}]+)/g, function(_, expression, literal) {
         if (expression) {
@@ -1960,7 +1960,7 @@ var require_dist_node2 = __commonJS({
           }
           expression.split(/,/g).forEach(function(variable) {
             var tmp = /([^:\*]*)(?::(\d+)|(\*))?/.exec(variable);
-            values.push(getValues(context2, operator, tmp[1], tmp[2] || tmp[3]));
+            values.push(getValues(context, operator, tmp[1], tmp[2] || tmp[3]));
           });
           if (operator && operator !== "+") {
             var separator = ",";
@@ -6742,10 +6742,284 @@ var require_github = __commonJS({
     var Context = __importStar(require_context());
     var utils_1 = require_utils4();
     exports.context = new Context.Context();
-    function getOctokit2(token, options) {
+    function getOctokit(token, options) {
       return new utils_1.GitHub(utils_1.getOctokitOptions(token, options));
     }
-    exports.getOctokit = getOctokit2;
+    exports.getOctokit = getOctokit;
+  }
+});
+
+// node_modules/retry/lib/retry_operation.js
+var require_retry_operation = __commonJS({
+  "node_modules/retry/lib/retry_operation.js"(exports, module2) {
+    function RetryOperation(timeouts, options) {
+      if (typeof options === "boolean") {
+        options = { forever: options };
+      }
+      this._originalTimeouts = JSON.parse(JSON.stringify(timeouts));
+      this._timeouts = timeouts;
+      this._options = options || {};
+      this._maxRetryTime = options && options.maxRetryTime || Infinity;
+      this._fn = null;
+      this._errors = [];
+      this._attempts = 1;
+      this._operationTimeout = null;
+      this._operationTimeoutCb = null;
+      this._timeout = null;
+      this._operationStart = null;
+      this._timer = null;
+      if (this._options.forever) {
+        this._cachedTimeouts = this._timeouts.slice(0);
+      }
+    }
+    module2.exports = RetryOperation;
+    RetryOperation.prototype.reset = function() {
+      this._attempts = 1;
+      this._timeouts = this._originalTimeouts.slice(0);
+    };
+    RetryOperation.prototype.stop = function() {
+      if (this._timeout) {
+        clearTimeout(this._timeout);
+      }
+      if (this._timer) {
+        clearTimeout(this._timer);
+      }
+      this._timeouts = [];
+      this._cachedTimeouts = null;
+    };
+    RetryOperation.prototype.retry = function(err) {
+      if (this._timeout) {
+        clearTimeout(this._timeout);
+      }
+      if (!err) {
+        return false;
+      }
+      var currentTime = new Date().getTime();
+      if (err && currentTime - this._operationStart >= this._maxRetryTime) {
+        this._errors.push(err);
+        this._errors.unshift(new Error("RetryOperation timeout occurred"));
+        return false;
+      }
+      this._errors.push(err);
+      var timeout = this._timeouts.shift();
+      if (timeout === void 0) {
+        if (this._cachedTimeouts) {
+          this._errors.splice(0, this._errors.length - 1);
+          timeout = this._cachedTimeouts.slice(-1);
+        } else {
+          return false;
+        }
+      }
+      var self2 = this;
+      this._timer = setTimeout(function() {
+        self2._attempts++;
+        if (self2._operationTimeoutCb) {
+          self2._timeout = setTimeout(function() {
+            self2._operationTimeoutCb(self2._attempts);
+          }, self2._operationTimeout);
+          if (self2._options.unref) {
+            self2._timeout.unref();
+          }
+        }
+        self2._fn(self2._attempts);
+      }, timeout);
+      if (this._options.unref) {
+        this._timer.unref();
+      }
+      return true;
+    };
+    RetryOperation.prototype.attempt = function(fn, timeoutOps) {
+      this._fn = fn;
+      if (timeoutOps) {
+        if (timeoutOps.timeout) {
+          this._operationTimeout = timeoutOps.timeout;
+        }
+        if (timeoutOps.cb) {
+          this._operationTimeoutCb = timeoutOps.cb;
+        }
+      }
+      var self2 = this;
+      if (this._operationTimeoutCb) {
+        this._timeout = setTimeout(function() {
+          self2._operationTimeoutCb();
+        }, self2._operationTimeout);
+      }
+      this._operationStart = new Date().getTime();
+      this._fn(this._attempts);
+    };
+    RetryOperation.prototype.try = function(fn) {
+      console.log("Using RetryOperation.try() is deprecated");
+      this.attempt(fn);
+    };
+    RetryOperation.prototype.start = function(fn) {
+      console.log("Using RetryOperation.start() is deprecated");
+      this.attempt(fn);
+    };
+    RetryOperation.prototype.start = RetryOperation.prototype.try;
+    RetryOperation.prototype.errors = function() {
+      return this._errors;
+    };
+    RetryOperation.prototype.attempts = function() {
+      return this._attempts;
+    };
+    RetryOperation.prototype.mainError = function() {
+      if (this._errors.length === 0) {
+        return null;
+      }
+      var counts = {};
+      var mainError = null;
+      var mainErrorCount = 0;
+      for (var i2 = 0; i2 < this._errors.length; i2++) {
+        var error = this._errors[i2];
+        var message = error.message;
+        var count = (counts[message] || 0) + 1;
+        counts[message] = count;
+        if (count >= mainErrorCount) {
+          mainError = error;
+          mainErrorCount = count;
+        }
+      }
+      return mainError;
+    };
+  }
+});
+
+// node_modules/retry/lib/retry.js
+var require_retry = __commonJS({
+  "node_modules/retry/lib/retry.js"(exports) {
+    var RetryOperation = require_retry_operation();
+    exports.operation = function(options) {
+      var timeouts = exports.timeouts(options);
+      return new RetryOperation(timeouts, {
+        forever: options && (options.forever || options.retries === Infinity),
+        unref: options && options.unref,
+        maxRetryTime: options && options.maxRetryTime
+      });
+    };
+    exports.timeouts = function(options) {
+      if (options instanceof Array) {
+        return [].concat(options);
+      }
+      var opts = {
+        retries: 10,
+        factor: 2,
+        minTimeout: 1 * 1e3,
+        maxTimeout: Infinity,
+        randomize: false
+      };
+      for (var key in options) {
+        opts[key] = options[key];
+      }
+      if (opts.minTimeout > opts.maxTimeout) {
+        throw new Error("minTimeout is greater than maxTimeout");
+      }
+      var timeouts = [];
+      for (var i2 = 0; i2 < opts.retries; i2++) {
+        timeouts.push(this.createTimeout(i2, opts));
+      }
+      if (options && options.forever && !timeouts.length) {
+        timeouts.push(this.createTimeout(i2, opts));
+      }
+      timeouts.sort(function(a, b) {
+        return a - b;
+      });
+      return timeouts;
+    };
+    exports.createTimeout = function(attempt, opts) {
+      var random = opts.randomize ? Math.random() + 1 : 1;
+      var timeout = Math.round(random * Math.max(opts.minTimeout, 1) * Math.pow(opts.factor, attempt));
+      timeout = Math.min(timeout, opts.maxTimeout);
+      return timeout;
+    };
+    exports.wrap = function(obj, options, methods) {
+      if (options instanceof Array) {
+        methods = options;
+        options = null;
+      }
+      if (!methods) {
+        methods = [];
+        for (var key in obj) {
+          if (typeof obj[key] === "function") {
+            methods.push(key);
+          }
+        }
+      }
+      for (var i2 = 0; i2 < methods.length; i2++) {
+        var method = methods[i2];
+        var original = obj[method];
+        obj[method] = function retryWrapper(original2) {
+          var op = exports.operation(options);
+          var args = Array.prototype.slice.call(arguments, 1);
+          var callback = args.pop();
+          args.push(function(err) {
+            if (op.retry(err)) {
+              return;
+            }
+            if (err) {
+              arguments[0] = op.mainError();
+            }
+            callback.apply(this, arguments);
+          });
+          op.attempt(function() {
+            original2.apply(obj, args);
+          });
+        }.bind(obj, original);
+        obj[method].options = options;
+      }
+    };
+  }
+});
+
+// node_modules/retry/index.js
+var require_retry2 = __commonJS({
+  "node_modules/retry/index.js"(exports, module2) {
+    module2.exports = require_retry();
+  }
+});
+
+// node_modules/async-retry/lib/index.js
+var require_lib3 = __commonJS({
+  "node_modules/async-retry/lib/index.js"(exports, module2) {
+    var retrier = require_retry2();
+    function retry2(fn, opts) {
+      function run(resolve, reject) {
+        var options = opts || {};
+        var op;
+        if (!("randomize" in options)) {
+          options.randomize = true;
+        }
+        op = retrier.operation(options);
+        function bail(err) {
+          reject(err || new Error("Aborted"));
+        }
+        function onError(err, num) {
+          if (err.bail) {
+            bail(err);
+            return;
+          }
+          if (!op.retry(err)) {
+            reject(op.mainError());
+          } else if (options.onRetry) {
+            options.onRetry(err, num);
+          }
+        }
+        function runAttempt(num) {
+          var val;
+          try {
+            val = fn(bail, num);
+          } catch (err) {
+            onError(err, num);
+            return;
+          }
+          Promise.resolve(val).then(resolve).catch(function catchIt(err) {
+            onError(err, num);
+          });
+        }
+        op.attempt(runAttempt);
+      }
+      return new Promise(run);
+    }
+    module2.exports = retry2;
   }
 });
 
@@ -6975,32 +7249,32 @@ var require_ponyfill_es2018 = __commonJS({
       function isDictionary(x2) {
         return typeof x2 === "object" || typeof x2 === "function";
       }
-      function assertDictionary(obj, context2) {
+      function assertDictionary(obj, context) {
         if (obj !== void 0 && !isDictionary(obj)) {
-          throw new TypeError(`${context2} is not an object.`);
+          throw new TypeError(`${context} is not an object.`);
         }
       }
-      function assertFunction(x2, context2) {
+      function assertFunction(x2, context) {
         if (typeof x2 !== "function") {
-          throw new TypeError(`${context2} is not a function.`);
+          throw new TypeError(`${context} is not a function.`);
         }
       }
       function isObject(x2) {
         return typeof x2 === "object" && x2 !== null || typeof x2 === "function";
       }
-      function assertObject(x2, context2) {
+      function assertObject(x2, context) {
         if (!isObject(x2)) {
-          throw new TypeError(`${context2} is not an object.`);
+          throw new TypeError(`${context} is not an object.`);
         }
       }
-      function assertRequiredArgument(x2, position, context2) {
+      function assertRequiredArgument(x2, position, context) {
         if (x2 === void 0) {
-          throw new TypeError(`Parameter ${position} is required in '${context2}'.`);
+          throw new TypeError(`Parameter ${position} is required in '${context}'.`);
         }
       }
-      function assertRequiredField(x2, field, context2) {
+      function assertRequiredField(x2, field, context) {
         if (x2 === void 0) {
-          throw new TypeError(`${field} is required in '${context2}'.`);
+          throw new TypeError(`${field} is required in '${context}'.`);
         }
       }
       function convertUnrestrictedDouble(value) {
@@ -7012,26 +7286,26 @@ var require_ponyfill_es2018 = __commonJS({
       function integerPart(x2) {
         return censorNegativeZero(MathTrunc(x2));
       }
-      function convertUnsignedLongLongWithEnforceRange(value, context2) {
+      function convertUnsignedLongLongWithEnforceRange(value, context) {
         const lowerBound = 0;
         const upperBound = Number.MAX_SAFE_INTEGER;
         let x2 = Number(value);
         x2 = censorNegativeZero(x2);
         if (!NumberIsFinite(x2)) {
-          throw new TypeError(`${context2} is not a finite number`);
+          throw new TypeError(`${context} is not a finite number`);
         }
         x2 = integerPart(x2);
         if (x2 < lowerBound || x2 > upperBound) {
-          throw new TypeError(`${context2} is outside the accepted range of ${lowerBound} to ${upperBound}, inclusive`);
+          throw new TypeError(`${context} is outside the accepted range of ${lowerBound} to ${upperBound}, inclusive`);
         }
         if (!NumberIsFinite(x2) || x2 === 0) {
           return 0;
         }
         return x2;
       }
-      function assertReadableStream(x2, context2) {
+      function assertReadableStream(x2, context) {
         if (!IsReadableStream(x2)) {
-          throw new TypeError(`${context2} is not a ReadableStream.`);
+          throw new TypeError(`${context} is not a ReadableStream.`);
         }
       }
       function AcquireReadableStreamDefaultReader(stream) {
@@ -8062,53 +8336,53 @@ var require_ponyfill_es2018 = __commonJS({
         }
         return size;
       }
-      function convertQueuingStrategy(init, context2) {
-        assertDictionary(init, context2);
+      function convertQueuingStrategy(init, context) {
+        assertDictionary(init, context);
         const highWaterMark = init === null || init === void 0 ? void 0 : init.highWaterMark;
         const size = init === null || init === void 0 ? void 0 : init.size;
         return {
           highWaterMark: highWaterMark === void 0 ? void 0 : convertUnrestrictedDouble(highWaterMark),
-          size: size === void 0 ? void 0 : convertQueuingStrategySize(size, `${context2} has member 'size' that`)
+          size: size === void 0 ? void 0 : convertQueuingStrategySize(size, `${context} has member 'size' that`)
         };
       }
-      function convertQueuingStrategySize(fn, context2) {
-        assertFunction(fn, context2);
+      function convertQueuingStrategySize(fn, context) {
+        assertFunction(fn, context);
         return (chunk) => convertUnrestrictedDouble(fn(chunk));
       }
-      function convertUnderlyingSink(original, context2) {
-        assertDictionary(original, context2);
+      function convertUnderlyingSink(original, context) {
+        assertDictionary(original, context);
         const abort = original === null || original === void 0 ? void 0 : original.abort;
         const close = original === null || original === void 0 ? void 0 : original.close;
         const start = original === null || original === void 0 ? void 0 : original.start;
         const type = original === null || original === void 0 ? void 0 : original.type;
         const write = original === null || original === void 0 ? void 0 : original.write;
         return {
-          abort: abort === void 0 ? void 0 : convertUnderlyingSinkAbortCallback(abort, original, `${context2} has member 'abort' that`),
-          close: close === void 0 ? void 0 : convertUnderlyingSinkCloseCallback(close, original, `${context2} has member 'close' that`),
-          start: start === void 0 ? void 0 : convertUnderlyingSinkStartCallback(start, original, `${context2} has member 'start' that`),
-          write: write === void 0 ? void 0 : convertUnderlyingSinkWriteCallback(write, original, `${context2} has member 'write' that`),
+          abort: abort === void 0 ? void 0 : convertUnderlyingSinkAbortCallback(abort, original, `${context} has member 'abort' that`),
+          close: close === void 0 ? void 0 : convertUnderlyingSinkCloseCallback(close, original, `${context} has member 'close' that`),
+          start: start === void 0 ? void 0 : convertUnderlyingSinkStartCallback(start, original, `${context} has member 'start' that`),
+          write: write === void 0 ? void 0 : convertUnderlyingSinkWriteCallback(write, original, `${context} has member 'write' that`),
           type
         };
       }
-      function convertUnderlyingSinkAbortCallback(fn, original, context2) {
-        assertFunction(fn, context2);
+      function convertUnderlyingSinkAbortCallback(fn, original, context) {
+        assertFunction(fn, context);
         return (reason) => promiseCall(fn, original, [reason]);
       }
-      function convertUnderlyingSinkCloseCallback(fn, original, context2) {
-        assertFunction(fn, context2);
+      function convertUnderlyingSinkCloseCallback(fn, original, context) {
+        assertFunction(fn, context);
         return () => promiseCall(fn, original, []);
       }
-      function convertUnderlyingSinkStartCallback(fn, original, context2) {
-        assertFunction(fn, context2);
+      function convertUnderlyingSinkStartCallback(fn, original, context) {
+        assertFunction(fn, context);
         return (controller) => reflectCall(fn, original, [controller]);
       }
-      function convertUnderlyingSinkWriteCallback(fn, original, context2) {
-        assertFunction(fn, context2);
+      function convertUnderlyingSinkWriteCallback(fn, original, context) {
+        assertFunction(fn, context);
         return (chunk, controller) => promiseCall(fn, original, [chunk, controller]);
       }
-      function assertWritableStream(x2, context2) {
+      function assertWritableStream(x2, context) {
         if (!IsWritableStream(x2)) {
-          throw new TypeError(`${context2} is not a WritableStream.`);
+          throw new TypeError(`${context} is not a WritableStream.`);
         }
       }
       function isAbortSignal2(value) {
@@ -9616,8 +9890,8 @@ var require_ponyfill_es2018 = __commonJS({
         forwardReaderError(reader);
         return [branch1, branch2];
       }
-      function convertUnderlyingDefaultOrByteSource(source, context2) {
-        assertDictionary(source, context2);
+      function convertUnderlyingDefaultOrByteSource(source, context) {
+        assertDictionary(source, context);
         const original = source;
         const autoAllocateChunkSize = original === null || original === void 0 ? void 0 : original.autoAllocateChunkSize;
         const cancel = original === null || original === void 0 ? void 0 : original.cancel;
@@ -9625,59 +9899,59 @@ var require_ponyfill_es2018 = __commonJS({
         const start = original === null || original === void 0 ? void 0 : original.start;
         const type = original === null || original === void 0 ? void 0 : original.type;
         return {
-          autoAllocateChunkSize: autoAllocateChunkSize === void 0 ? void 0 : convertUnsignedLongLongWithEnforceRange(autoAllocateChunkSize, `${context2} has member 'autoAllocateChunkSize' that`),
-          cancel: cancel === void 0 ? void 0 : convertUnderlyingSourceCancelCallback(cancel, original, `${context2} has member 'cancel' that`),
-          pull: pull === void 0 ? void 0 : convertUnderlyingSourcePullCallback(pull, original, `${context2} has member 'pull' that`),
-          start: start === void 0 ? void 0 : convertUnderlyingSourceStartCallback(start, original, `${context2} has member 'start' that`),
-          type: type === void 0 ? void 0 : convertReadableStreamType(type, `${context2} has member 'type' that`)
+          autoAllocateChunkSize: autoAllocateChunkSize === void 0 ? void 0 : convertUnsignedLongLongWithEnforceRange(autoAllocateChunkSize, `${context} has member 'autoAllocateChunkSize' that`),
+          cancel: cancel === void 0 ? void 0 : convertUnderlyingSourceCancelCallback(cancel, original, `${context} has member 'cancel' that`),
+          pull: pull === void 0 ? void 0 : convertUnderlyingSourcePullCallback(pull, original, `${context} has member 'pull' that`),
+          start: start === void 0 ? void 0 : convertUnderlyingSourceStartCallback(start, original, `${context} has member 'start' that`),
+          type: type === void 0 ? void 0 : convertReadableStreamType(type, `${context} has member 'type' that`)
         };
       }
-      function convertUnderlyingSourceCancelCallback(fn, original, context2) {
-        assertFunction(fn, context2);
+      function convertUnderlyingSourceCancelCallback(fn, original, context) {
+        assertFunction(fn, context);
         return (reason) => promiseCall(fn, original, [reason]);
       }
-      function convertUnderlyingSourcePullCallback(fn, original, context2) {
-        assertFunction(fn, context2);
+      function convertUnderlyingSourcePullCallback(fn, original, context) {
+        assertFunction(fn, context);
         return (controller) => promiseCall(fn, original, [controller]);
       }
-      function convertUnderlyingSourceStartCallback(fn, original, context2) {
-        assertFunction(fn, context2);
+      function convertUnderlyingSourceStartCallback(fn, original, context) {
+        assertFunction(fn, context);
         return (controller) => reflectCall(fn, original, [controller]);
       }
-      function convertReadableStreamType(type, context2) {
+      function convertReadableStreamType(type, context) {
         type = `${type}`;
         if (type !== "bytes") {
-          throw new TypeError(`${context2} '${type}' is not a valid enumeration value for ReadableStreamType`);
+          throw new TypeError(`${context} '${type}' is not a valid enumeration value for ReadableStreamType`);
         }
         return type;
       }
-      function convertReaderOptions(options, context2) {
-        assertDictionary(options, context2);
+      function convertReaderOptions(options, context) {
+        assertDictionary(options, context);
         const mode = options === null || options === void 0 ? void 0 : options.mode;
         return {
-          mode: mode === void 0 ? void 0 : convertReadableStreamReaderMode(mode, `${context2} has member 'mode' that`)
+          mode: mode === void 0 ? void 0 : convertReadableStreamReaderMode(mode, `${context} has member 'mode' that`)
         };
       }
-      function convertReadableStreamReaderMode(mode, context2) {
+      function convertReadableStreamReaderMode(mode, context) {
         mode = `${mode}`;
         if (mode !== "byob") {
-          throw new TypeError(`${context2} '${mode}' is not a valid enumeration value for ReadableStreamReaderMode`);
+          throw new TypeError(`${context} '${mode}' is not a valid enumeration value for ReadableStreamReaderMode`);
         }
         return mode;
       }
-      function convertIteratorOptions(options, context2) {
-        assertDictionary(options, context2);
+      function convertIteratorOptions(options, context) {
+        assertDictionary(options, context);
         const preventCancel = options === null || options === void 0 ? void 0 : options.preventCancel;
         return { preventCancel: Boolean(preventCancel) };
       }
-      function convertPipeOptions(options, context2) {
-        assertDictionary(options, context2);
+      function convertPipeOptions(options, context) {
+        assertDictionary(options, context);
         const preventAbort = options === null || options === void 0 ? void 0 : options.preventAbort;
         const preventCancel = options === null || options === void 0 ? void 0 : options.preventCancel;
         const preventClose = options === null || options === void 0 ? void 0 : options.preventClose;
         const signal = options === null || options === void 0 ? void 0 : options.signal;
         if (signal !== void 0) {
-          assertAbortSignal(signal, `${context2} has member 'signal' that`);
+          assertAbortSignal(signal, `${context} has member 'signal' that`);
         }
         return {
           preventAbort: Boolean(preventAbort),
@@ -9686,19 +9960,19 @@ var require_ponyfill_es2018 = __commonJS({
           signal
         };
       }
-      function assertAbortSignal(signal, context2) {
+      function assertAbortSignal(signal, context) {
         if (!isAbortSignal2(signal)) {
-          throw new TypeError(`${context2} is not an AbortSignal.`);
+          throw new TypeError(`${context} is not an AbortSignal.`);
         }
       }
-      function convertReadableWritablePair(pair, context2) {
-        assertDictionary(pair, context2);
+      function convertReadableWritablePair(pair, context) {
+        assertDictionary(pair, context);
         const readable = pair === null || pair === void 0 ? void 0 : pair.readable;
         assertRequiredField(readable, "readable", "ReadableWritablePair");
-        assertReadableStream(readable, `${context2} has member 'readable' that`);
+        assertReadableStream(readable, `${context} has member 'readable' that`);
         const writable = pair === null || pair === void 0 ? void 0 : pair.writable;
         assertRequiredField(writable, "writable", "ReadableWritablePair");
-        assertWritableStream(writable, `${context2} has member 'writable' that`);
+        assertWritableStream(writable, `${context} has member 'writable' that`);
         return { readable, writable };
       }
       class ReadableStream2 {
@@ -9917,8 +10191,8 @@ var require_ponyfill_es2018 = __commonJS({
       function streamBrandCheckException$1(name) {
         return new TypeError(`ReadableStream.prototype.${name} can only be used on a ReadableStream`);
       }
-      function convertQueuingStrategyInit(init, context2) {
-        assertDictionary(init, context2);
+      function convertQueuingStrategyInit(init, context) {
+        assertDictionary(init, context);
         const highWaterMark = init === null || init === void 0 ? void 0 : init.highWaterMark;
         assertRequiredField(highWaterMark, "highWaterMark", "QueuingStrategyInit");
         return {
@@ -10027,31 +10301,31 @@ var require_ponyfill_es2018 = __commonJS({
         }
         return x2 instanceof CountQueuingStrategy;
       }
-      function convertTransformer(original, context2) {
-        assertDictionary(original, context2);
+      function convertTransformer(original, context) {
+        assertDictionary(original, context);
         const flush = original === null || original === void 0 ? void 0 : original.flush;
         const readableType = original === null || original === void 0 ? void 0 : original.readableType;
         const start = original === null || original === void 0 ? void 0 : original.start;
         const transform = original === null || original === void 0 ? void 0 : original.transform;
         const writableType = original === null || original === void 0 ? void 0 : original.writableType;
         return {
-          flush: flush === void 0 ? void 0 : convertTransformerFlushCallback(flush, original, `${context2} has member 'flush' that`),
+          flush: flush === void 0 ? void 0 : convertTransformerFlushCallback(flush, original, `${context} has member 'flush' that`),
           readableType,
-          start: start === void 0 ? void 0 : convertTransformerStartCallback(start, original, `${context2} has member 'start' that`),
-          transform: transform === void 0 ? void 0 : convertTransformerTransformCallback(transform, original, `${context2} has member 'transform' that`),
+          start: start === void 0 ? void 0 : convertTransformerStartCallback(start, original, `${context} has member 'start' that`),
+          transform: transform === void 0 ? void 0 : convertTransformerTransformCallback(transform, original, `${context} has member 'transform' that`),
           writableType
         };
       }
-      function convertTransformerFlushCallback(fn, original, context2) {
-        assertFunction(fn, context2);
+      function convertTransformerFlushCallback(fn, original, context) {
+        assertFunction(fn, context);
         return (controller) => promiseCall(fn, original, [controller]);
       }
-      function convertTransformerStartCallback(fn, original, context2) {
-        assertFunction(fn, context2);
+      function convertTransformerStartCallback(fn, original, context) {
+        assertFunction(fn, context);
         return (controller) => reflectCall(fn, original, [controller]);
       }
-      function convertTransformerTransformCallback(fn, original, context2) {
-        assertFunction(fn, context2);
+      function convertTransformerTransformCallback(fn, original, context) {
+        assertFunction(fn, context);
         return (chunk, controller) => promiseCall(fn, original, [chunk, controller]);
       }
       class TransformStream {
@@ -11106,8 +11380,9 @@ var init_multipart_parser = __esm({
 // index.ts
 var import_path = require("path");
 var import_promises = require("fs/promises");
-var core = __toESM(require_core());
-var github = __toESM(require_github());
+var import_core = __toESM(require_core());
+var import_github = __toESM(require_github());
+var import_async_retry = __toESM(require_lib3());
 
 // node_modules/node-fetch/src/index.js
 var import_node_http2 = __toESM(require("node:http"), 1);
@@ -12274,9 +12549,9 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
 }
 
 // index.ts
-var getRepo = (inputRepoString, context2) => {
+var getRepo = (inputRepoString, context) => {
   if (inputRepoString === "") {
-    return { owner: context2.repo.owner, repo: context2.repo.repo };
+    return { owner: context.repo.owner, repo: context.repo.repo };
   } else {
     const [owner, repo] = inputRepoString.split("/");
     if (typeof owner === "undefined" || typeof repo === "undefined")
@@ -12302,9 +12577,7 @@ var getRelease = (octokit, { owner, repo, version }) => {
     });
   }
 };
-var MAX_RETRY = 5;
-var RETRY_INTERVAL = 1e3;
-var fetchAssetFile = async (octokit, { id, outputPath, owner, repo, token }) => {
+var baseFetchAssetFile = async (octokit, { id, outputPath, owner, repo, token }) => {
   const {
     body,
     headers: { accept, "user-agent": userAgent },
@@ -12324,43 +12597,37 @@ var fetchAssetFile = async (octokit, { id, outputPath, owner, repo, token }) => 
   };
   if (typeof userAgent !== "undefined")
     headers = { ...headers, "user-agent": userAgent };
-  let i2 = 0;
-  while (true) {
-    const response = await fetch(url, { body, headers, method });
-    if (!response.ok) {
-      if (i2 < MAX_RETRY) {
-        i2++;
-        await new Promise((resolve) => setTimeout(resolve, RETRY_INTERVAL));
-        continue;
-      } else {
-        const text = await response.text();
-        core.warning(text);
-        throw new Error("Invalid response");
-      }
-    }
-    const blob = await response.blob();
-    const arrayBuffer = await blob.arrayBuffer();
-    await (0, import_promises.mkdir)((0, import_path.dirname)(outputPath), { recursive: true });
-    await (0, import_promises.writeFile)(outputPath, new Uint8Array(arrayBuffer));
-    return;
+  const response = await fetch(url, { body, headers, method });
+  if (!response.ok) {
+    const text = await response.text();
+    import_core.default.warning(text);
+    throw new Error("Invalid response");
   }
+  const blob = await response.blob();
+  const arrayBuffer = await blob.arrayBuffer();
+  await (0, import_promises.mkdir)((0, import_path.dirname)(outputPath), { recursive: true });
+  void await (0, import_promises.writeFile)(outputPath, new Uint8Array(arrayBuffer));
 };
+var fetchAssetFile = (octokit, options) => (0, import_async_retry.default)(() => baseFetchAssetFile(octokit, options), {
+  retries: 5,
+  minTimeout: 1e3
+});
 var printOutput = (release) => {
-  core.setOutput("version", release.data.tag_name);
-  core.setOutput("name", release.data.name);
-  core.setOutput("body", release.data.body);
+  import_core.default.setOutput("version", release.data.tag_name);
+  import_core.default.setOutput("name", release.data.name);
+  import_core.default.setOutput("body", release.data.body);
 };
 var filterByFileName = (file) => (asset) => file === asset.name;
 var filterByRegex = (file) => (asset) => new RegExp(file).test(asset.name);
 var main = async () => {
-  const { owner, repo } = getRepo(core.getInput("repo", { required: false }), github.context);
-  const token = core.getInput("token", { required: false });
-  const version = core.getInput("version", { required: false });
-  const inputTarget = core.getInput("target", { required: false });
-  const file = core.getInput("file", { required: true });
-  const usesRegex = core.getBooleanInput("regex", { required: false });
+  const { owner, repo } = getRepo(import_core.default.getInput("repo", { required: false }), import_github.default.context);
+  const token = import_core.default.getInput("token", { required: false });
+  const version = import_core.default.getInput("version", { required: false });
+  const inputTarget = import_core.default.getInput("target", { required: false });
+  const file = import_core.default.getInput("file", { required: true });
+  const usesRegex = import_core.default.getBooleanInput("regex", { required: false });
   const target = inputTarget === "" ? file : inputTarget;
-  const octokit = github.getOctokit(token);
+  const octokit = import_github.default.getOctokit(token);
   const release = await getRelease(octokit, { owner, repo, version });
   const assetFilterFn = usesRegex ? filterByRegex(file) : filterByFileName(file);
   const assets = release.data.assets.filter(assetFilterFn);
