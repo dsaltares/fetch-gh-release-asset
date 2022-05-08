@@ -56,6 +56,8 @@ type GetReleaseResult = ReturnType<typeof getRelease> extends Promise<infer T>
   ? T
   : never;
 
+type Asset = GetReleaseResult['data']['assets'][0];
+
 interface FetchAssetFileOptions {
   readonly id: number;
   readonly outputPath: string;
@@ -122,6 +124,11 @@ const printOutput = (release: GetReleaseResult): void => {
   core.setOutput('body', release.data.body);
 };
 
+const filterByFileName = (file: string) => (asset: Asset) =>
+  file === asset.name;
+const filterByRegex = (file: string) => (asset: Asset) =>
+  new RegExp(file).test(asset.name);
+
 const main = async (): Promise<void> => {
   const { owner, repo } = getRepo(
     core.getInput('repo', { required: false }),
@@ -131,43 +138,22 @@ const main = async (): Promise<void> => {
   const version = core.getInput('version', { required: false });
   const inputTarget = core.getInput('target', { required: false });
   const file = core.getInput('file', { required: true });
+  const usesRegex = core.getBooleanInput('regex', { required: false });
   const target = inputTarget === '' ? file : inputTarget;
 
   const octokit = github.getOctokit(token);
   const release = await getRelease(octokit, { owner, repo, version });
 
-  const asset = release.data.assets.find((e) => e.name === file);
-  if (typeof asset === 'undefined') throw new Error('Could not find asset id');
-  await fetchAssetFile(octokit, {
-    id: asset.id,
-    outputPath: target,
-    owner,
-    repo,
-    token,
-  });
-  printOutput(release);
-};
+  const assetFilterFn = usesRegex
+    ? filterByRegex(file)
+    : filterByFileName(file);
 
-const mainRegex = async (): Promise<void> => {
-  const { owner, repo } = getRepo(
-    core.getInput('repo', { required: false }),
-    github.context
-  );
-  const token = core.getInput('token', { required: false });
-  const version = core.getInput('version', { required: false });
-  const file = core.getInput('file', { required: true });
-  const target = core.getInput('target', { required: true });
-
-  const octokit = github.getOctokit(token);
-  const release = await getRelease(octokit, { owner, repo, version });
-
-  const regexp = new RegExp(file);
-  const assets = release.data.assets.filter((e) => regexp.test(e.name));
+  const assets = release.data.assets.filter(assetFilterFn);
   if (assets.length === 0) throw new Error('Could not find asset id');
   for (const asset of assets) {
     await fetchAssetFile(octokit, {
       id: asset.id,
-      outputPath: `${target}${asset.name}`,
+      outputPath: usesRegex ? `${target}${asset.name}` : target,
       owner,
       repo,
       token,
@@ -176,8 +162,4 @@ const mainRegex = async (): Promise<void> => {
   printOutput(release);
 };
 
-if (core.getBooleanInput('regex', { required: false })) {
-  void mainRegex();
-} else {
-  void main();
-}
+void main();
