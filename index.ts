@@ -136,8 +136,8 @@ const main = async (): Promise<void> => {
   );
   const token = core.getInput('token', { required: false });
   const version = core.getInput('version', { required: false });
-  const file = core.getInput('file', { required: true });
   const inputTarget = core.getInput('target', { required: false });
+  const file = core.getInput('file', { required: true });
   const target = inputTarget === '' ? file : inputTarget;
 
   const octokit = github.getOctokit(token);
