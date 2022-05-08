@@ -1360,7 +1360,7 @@ var require_core = __commonJS({
       process.env["PATH"] = `${inputPath}${path.delimiter}${process.env["PATH"]}`;
     }
     exports.addPath = addPath;
-    function getInput(name, options) {
+    function getInput2(name, options) {
       const val = process.env[`INPUT_${name.replace(/ /g, "_").toUpperCase()}`] || "";
       if (options && options.required && !val) {
         throw new Error(`Input required and not supplied: ${name}`);
@@ -1370,16 +1370,16 @@ var require_core = __commonJS({
       }
       return val.trim();
     }
-    exports.getInput = getInput;
+    exports.getInput = getInput2;
     function getMultilineInput(name, options) {
-      const inputs = getInput(name, options).split("\n").filter((x2) => x2 !== "");
+      const inputs = getInput2(name, options).split("\n").filter((x2) => x2 !== "");
       return inputs;
     }
     exports.getMultilineInput = getMultilineInput;
-    function getBooleanInput(name, options) {
+    function getBooleanInput2(name, options) {
       const trueValue = ["true", "True", "TRUE"];
       const falseValue = ["false", "False", "FALSE"];
-      const val = getInput(name, options);
+      const val = getInput2(name, options);
       if (trueValue.includes(val))
         return true;
       if (falseValue.includes(val))
@@ -1387,12 +1387,12 @@ var require_core = __commonJS({
       throw new TypeError(`Input does not meet YAML 1.2 "Core Schema" specification: ${name}
 Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
     }
-    exports.getBooleanInput = getBooleanInput;
-    function setOutput(name, value) {
+    exports.getBooleanInput = getBooleanInput2;
+    function setOutput2(name, value) {
       process.stdout.write(os.EOL);
       command_1.issueCommand("set-output", { name }, value);
     }
-    exports.setOutput = setOutput;
+    exports.setOutput = setOutput2;
     function setCommandEcho(enabled) {
       command_1.issue("echo", enabled ? "on" : "off");
     }
@@ -1414,10 +1414,10 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
       command_1.issueCommand("error", utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
     }
     exports.error = error;
-    function warning(message, properties = {}) {
+    function warning2(message, properties = {}) {
       command_1.issueCommand("warning", utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
     }
-    exports.warning = warning;
+    exports.warning = warning2;
     function notice(message, properties = {}) {
       command_1.issueCommand("notice", utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
     }
@@ -1887,8 +1887,8 @@ var require_dist_node2 = __commonJS({
     function isKeyOperator(operator) {
       return operator === ";" || operator === "&" || operator === "?";
     }
-    function getValues(context, operator, key, modifier) {
-      var value = context[key], result = [];
+    function getValues(context2, operator, key, modifier) {
+      var value = context2[key], result = [];
       if (isDefined(value) && value !== "") {
         if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
           value = value.toString();
@@ -1948,7 +1948,7 @@ var require_dist_node2 = __commonJS({
         expand: expand.bind(null, template)
       };
     }
-    function expand(template, context) {
+    function expand(template, context2) {
       var operators = ["+", "#", ".", "/", ";", "?", "&"];
       return template.replace(/\{([^\{\}]+)\}|([^\{\}]+)/g, function(_, expression, literal) {
         if (expression) {
@@ -1960,7 +1960,7 @@ var require_dist_node2 = __commonJS({
           }
           expression.split(/,/g).forEach(function(variable) {
             var tmp = /([^:\*]*)(?::(\d+)|(\*))?/.exec(variable);
-            values.push(getValues(context, operator, tmp[1], tmp[2] || tmp[3]));
+            values.push(getValues(context2, operator, tmp[1], tmp[2] || tmp[3]));
           });
           if (operator && operator !== "+") {
             var separator = ",";
@@ -6742,10 +6742,10 @@ var require_github = __commonJS({
     var Context = __importStar(require_context());
     var utils_1 = require_utils4();
     exports.context = new Context.Context();
-    function getOctokit(token, options) {
+    function getOctokit2(token, options) {
       return new utils_1.GitHub(utils_1.getOctokitOptions(token, options));
     }
-    exports.getOctokit = getOctokit;
+    exports.getOctokit = getOctokit2;
   }
 });
 
@@ -7249,32 +7249,32 @@ var require_ponyfill_es2018 = __commonJS({
       function isDictionary(x2) {
         return typeof x2 === "object" || typeof x2 === "function";
       }
-      function assertDictionary(obj, context) {
+      function assertDictionary(obj, context2) {
         if (obj !== void 0 && !isDictionary(obj)) {
-          throw new TypeError(`${context} is not an object.`);
+          throw new TypeError(`${context2} is not an object.`);
         }
       }
-      function assertFunction(x2, context) {
+      function assertFunction(x2, context2) {
         if (typeof x2 !== "function") {
-          throw new TypeError(`${context} is not a function.`);
+          throw new TypeError(`${context2} is not a function.`);
         }
       }
       function isObject(x2) {
         return typeof x2 === "object" && x2 !== null || typeof x2 === "function";
       }
-      function assertObject(x2, context) {
+      function assertObject(x2, context2) {
         if (!isObject(x2)) {
-          throw new TypeError(`${context} is not an object.`);
+          throw new TypeError(`${context2} is not an object.`);
         }
       }
-      function assertRequiredArgument(x2, position, context) {
+      function assertRequiredArgument(x2, position, context2) {
         if (x2 === void 0) {
-          throw new TypeError(`Parameter ${position} is required in '${context}'.`);
+          throw new TypeError(`Parameter ${position} is required in '${context2}'.`);
         }
       }
-      function assertRequiredField(x2, field, context) {
+      function assertRequiredField(x2, field, context2) {
         if (x2 === void 0) {
-          throw new TypeError(`${field} is required in '${context}'.`);
+          throw new TypeError(`${field} is required in '${context2}'.`);
         }
       }
       function convertUnrestrictedDouble(value) {
@@ -7286,26 +7286,26 @@ var require_ponyfill_es2018 = __commonJS({
       function integerPart(x2) {
         return censorNegativeZero(MathTrunc(x2));
       }
-      function convertUnsignedLongLongWithEnforceRange(value, context) {
+      function convertUnsignedLongLongWithEnforceRange(value, context2) {
         const lowerBound = 0;
         const upperBound = Number.MAX_SAFE_INTEGER;
         let x2 = Number(value);
         x2 = censorNegativeZero(x2);
         if (!NumberIsFinite(x2)) {
-          throw new TypeError(`${context} is not a finite number`);
+          throw new TypeError(`${context2} is not a finite number`);
         }
         x2 = integerPart(x2);
         if (x2 < lowerBound || x2 > upperBound) {
-          throw new TypeError(`${context} is outside the accepted range of ${lowerBound} to ${upperBound}, inclusive`);
+          throw new TypeError(`${context2} is outside the accepted range of ${lowerBound} to ${upperBound}, inclusive`);
         }
         if (!NumberIsFinite(x2) || x2 === 0) {
           return 0;
         }
         return x2;
       }
-      function assertReadableStream(x2, context) {
+      function assertReadableStream(x2, context2) {
         if (!IsReadableStream(x2)) {
-          throw new TypeError(`${context} is not a ReadableStream.`);
+          throw new TypeError(`${context2} is not a ReadableStream.`);
         }
       }
       function AcquireReadableStreamDefaultReader(stream) {
@@ -8336,53 +8336,53 @@ var require_ponyfill_es2018 = __commonJS({
         }
         return size;
       }
-      function convertQueuingStrategy(init, context) {
-        assertDictionary(init, context);
+      function convertQueuingStrategy(init, context2) {
+        assertDictionary(init, context2);
         const highWaterMark = init === null || init === void 0 ? void 0 : init.highWaterMark;
         const size = init === null || init === void 0 ? void 0 : init.size;
         return {
           highWaterMark: highWaterMark === void 0 ? void 0 : convertUnrestrictedDouble(highWaterMark),
-          size: size === void 0 ? void 0 : convertQueuingStrategySize(size, `${context} has member 'size' that`)
+          size: size === void 0 ? void 0 : convertQueuingStrategySize(size, `${context2} has member 'size' that`)
         };
       }
-      function convertQueuingStrategySize(fn, context) {
-        assertFunction(fn, context);
+      function convertQueuingStrategySize(fn, context2) {
+        assertFunction(fn, context2);
         return (chunk) => convertUnrestrictedDouble(fn(chunk));
       }
-      function convertUnderlyingSink(original, context) {
-        assertDictionary(original, context);
+      function convertUnderlyingSink(original, context2) {
+        assertDictionary(original, context2);
         const abort = original === null || original === void 0 ? void 0 : original.abort;
         const close = original === null || original === void 0 ? void 0 : original.close;
         const start = original === null || original === void 0 ? void 0 : original.start;
         const type = original === null || original === void 0 ? void 0 : original.type;
         const write = original === null || original === void 0 ? void 0 : original.write;
         return {
-          abort: abort === void 0 ? void 0 : convertUnderlyingSinkAbortCallback(abort, original, `${context} has member 'abort' that`),
-          close: close === void 0 ? void 0 : convertUnderlyingSinkCloseCallback(close, original, `${context} has member 'close' that`),
-          start: start === void 0 ? void 0 : convertUnderlyingSinkStartCallback(start, original, `${context} has member 'start' that`),
-          write: write === void 0 ? void 0 : convertUnderlyingSinkWriteCallback(write, original, `${context} has member 'write' that`),
+          abort: abort === void 0 ? void 0 : convertUnderlyingSinkAbortCallback(abort, original, `${context2} has member 'abort' that`),
+          close: close === void 0 ? void 0 : convertUnderlyingSinkCloseCallback(close, original, `${context2} has member 'close' that`),
+          start: start === void 0 ? void 0 : convertUnderlyingSinkStartCallback(start, original, `${context2} has member 'start' that`),
+          write: write === void 0 ? void 0 : convertUnderlyingSinkWriteCallback(write, original, `${context2} has member 'write' that`),
           type
         };
       }
-      function convertUnderlyingSinkAbortCallback(fn, original, context) {
-        assertFunction(fn, context);
+      function convertUnderlyingSinkAbortCallback(fn, original, context2) {
+        assertFunction(fn, context2);
         return (reason) => promiseCall(fn, original, [reason]);
       }
-      function convertUnderlyingSinkCloseCallback(fn, original, context) {
-        assertFunction(fn, context);
+      function convertUnderlyingSinkCloseCallback(fn, original, context2) {
+        assertFunction(fn, context2);
         return () => promiseCall(fn, original, []);
       }
-      function convertUnderlyingSinkStartCallback(fn, original, context) {
-        assertFunction(fn, context);
+      function convertUnderlyingSinkStartCallback(fn, original, context2) {
+        assertFunction(fn, context2);
         return (controller) => reflectCall(fn, original, [controller]);
       }
-      function convertUnderlyingSinkWriteCallback(fn, original, context) {
-        assertFunction(fn, context);
+      function convertUnderlyingSinkWriteCallback(fn, original, context2) {
+        assertFunction(fn, context2);
         return (chunk, controller) => promiseCall(fn, original, [chunk, controller]);
       }
-      function assertWritableStream(x2, context) {
+      function assertWritableStream(x2, context2) {
         if (!IsWritableStream(x2)) {
-          throw new TypeError(`${context} is not a WritableStream.`);
+          throw new TypeError(`${context2} is not a WritableStream.`);
         }
       }
       function isAbortSignal2(value) {
@@ -9890,8 +9890,8 @@ var require_ponyfill_es2018 = __commonJS({
         forwardReaderError(reader);
         return [branch1, branch2];
       }
-      function convertUnderlyingDefaultOrByteSource(source, context) {
-        assertDictionary(source, context);
+      function convertUnderlyingDefaultOrByteSource(source, context2) {
+        assertDictionary(source, context2);
         const original = source;
         const autoAllocateChunkSize = original === null || original === void 0 ? void 0 : original.autoAllocateChunkSize;
         const cancel = original === null || original === void 0 ? void 0 : original.cancel;
@@ -9899,59 +9899,59 @@ var require_ponyfill_es2018 = __commonJS({
         const start = original === null || original === void 0 ? void 0 : original.start;
         const type = original === null || original === void 0 ? void 0 : original.type;
         return {
-          autoAllocateChunkSize: autoAllocateChunkSize === void 0 ? void 0 : convertUnsignedLongLongWithEnforceRange(autoAllocateChunkSize, `${context} has member 'autoAllocateChunkSize' that`),
-          cancel: cancel === void 0 ? void 0 : convertUnderlyingSourceCancelCallback(cancel, original, `${context} has member 'cancel' that`),
-          pull: pull === void 0 ? void 0 : convertUnderlyingSourcePullCallback(pull, original, `${context} has member 'pull' that`),
-          start: start === void 0 ? void 0 : convertUnderlyingSourceStartCallback(start, original, `${context} has member 'start' that`),
-          type: type === void 0 ? void 0 : convertReadableStreamType(type, `${context} has member 'type' that`)
+          autoAllocateChunkSize: autoAllocateChunkSize === void 0 ? void 0 : convertUnsignedLongLongWithEnforceRange(autoAllocateChunkSize, `${context2} has member 'autoAllocateChunkSize' that`),
+          cancel: cancel === void 0 ? void 0 : convertUnderlyingSourceCancelCallback(cancel, original, `${context2} has member 'cancel' that`),
+          pull: pull === void 0 ? void 0 : convertUnderlyingSourcePullCallback(pull, original, `${context2} has member 'pull' that`),
+          start: start === void 0 ? void 0 : convertUnderlyingSourceStartCallback(start, original, `${context2} has member 'start' that`),
+          type: type === void 0 ? void 0 : convertReadableStreamType(type, `${context2} has member 'type' that`)
         };
       }
-      function convertUnderlyingSourceCancelCallback(fn, original, context) {
-        assertFunction(fn, context);
+      function convertUnderlyingSourceCancelCallback(fn, original, context2) {
+        assertFunction(fn, context2);
         return (reason) => promiseCall(fn, original, [reason]);
       }
-      function convertUnderlyingSourcePullCallback(fn, original, context) {
-        assertFunction(fn, context);
+      function convertUnderlyingSourcePullCallback(fn, original, context2) {
+        assertFunction(fn, context2);
         return (controller) => promiseCall(fn, original, [controller]);
       }
-      function convertUnderlyingSourceStartCallback(fn, original, context) {
-        assertFunction(fn, context);
+      function convertUnderlyingSourceStartCallback(fn, original, context2) {
+        assertFunction(fn, context2);
         return (controller) => reflectCall(fn, original, [controller]);
       }
-      function convertReadableStreamType(type, context) {
+      function convertReadableStreamType(type, context2) {
         type = `${type}`;
         if (type !== "bytes") {
-          throw new TypeError(`${context} '${type}' is not a valid enumeration value for ReadableStreamType`);
+          throw new TypeError(`${context2} '${type}' is not a valid enumeration value for ReadableStreamType`);
         }
         return type;
       }
-      function convertReaderOptions(options, context) {
-        assertDictionary(options, context);
+      function convertReaderOptions(options, context2) {
+        assertDictionary(options, context2);
         const mode = options === null || options === void 0 ? void 0 : options.mode;
         return {
-          mode: mode === void 0 ? void 0 : convertReadableStreamReaderMode(mode, `${context} has member 'mode' that`)
+          mode: mode === void 0 ? void 0 : convertReadableStreamReaderMode(mode, `${context2} has member 'mode' that`)
         };
       }
-      function convertReadableStreamReaderMode(mode, context) {
+      function convertReadableStreamReaderMode(mode, context2) {
         mode = `${mode}`;
         if (mode !== "byob") {
-          throw new TypeError(`${context} '${mode}' is not a valid enumeration value for ReadableStreamReaderMode`);
+          throw new TypeError(`${context2} '${mode}' is not a valid enumeration value for ReadableStreamReaderMode`);
         }
         return mode;
       }
-      function convertIteratorOptions(options, context) {
-        assertDictionary(options, context);
+      function convertIteratorOptions(options, context2) {
+        assertDictionary(options, context2);
         const preventCancel = options === null || options === void 0 ? void 0 : options.preventCancel;
         return { preventCancel: Boolean(preventCancel) };
       }
-      function convertPipeOptions(options, context) {
-        assertDictionary(options, context);
+      function convertPipeOptions(options, context2) {
+        assertDictionary(options, context2);
         const preventAbort = options === null || options === void 0 ? void 0 : options.preventAbort;
         const preventCancel = options === null || options === void 0 ? void 0 : options.preventCancel;
         const preventClose = options === null || options === void 0 ? void 0 : options.preventClose;
         const signal = options === null || options === void 0 ? void 0 : options.signal;
         if (signal !== void 0) {
-          assertAbortSignal(signal, `${context} has member 'signal' that`);
+          assertAbortSignal(signal, `${context2} has member 'signal' that`);
         }
         return {
           preventAbort: Boolean(preventAbort),
@@ -9960,19 +9960,19 @@ var require_ponyfill_es2018 = __commonJS({
           signal
         };
       }
-      function assertAbortSignal(signal, context) {
+      function assertAbortSignal(signal, context2) {
         if (!isAbortSignal2(signal)) {
-          throw new TypeError(`${context} is not an AbortSignal.`);
+          throw new TypeError(`${context2} is not an AbortSignal.`);
         }
       }
-      function convertReadableWritablePair(pair, context) {
-        assertDictionary(pair, context);
+      function convertReadableWritablePair(pair, context2) {
+        assertDictionary(pair, context2);
         const readable = pair === null || pair === void 0 ? void 0 : pair.readable;
         assertRequiredField(readable, "readable", "ReadableWritablePair");
-        assertReadableStream(readable, `${context} has member 'readable' that`);
+        assertReadableStream(readable, `${context2} has member 'readable' that`);
         const writable = pair === null || pair === void 0 ? void 0 : pair.writable;
         assertRequiredField(writable, "writable", "ReadableWritablePair");
-        assertWritableStream(writable, `${context} has member 'writable' that`);
+        assertWritableStream(writable, `${context2} has member 'writable' that`);
         return { readable, writable };
       }
       class ReadableStream2 {
@@ -10191,8 +10191,8 @@ var require_ponyfill_es2018 = __commonJS({
       function streamBrandCheckException$1(name) {
         return new TypeError(`ReadableStream.prototype.${name} can only be used on a ReadableStream`);
       }
-      function convertQueuingStrategyInit(init, context) {
-        assertDictionary(init, context);
+      function convertQueuingStrategyInit(init, context2) {
+        assertDictionary(init, context2);
         const highWaterMark = init === null || init === void 0 ? void 0 : init.highWaterMark;
         assertRequiredField(highWaterMark, "highWaterMark", "QueuingStrategyInit");
         return {
@@ -10301,31 +10301,31 @@ var require_ponyfill_es2018 = __commonJS({
         }
         return x2 instanceof CountQueuingStrategy;
       }
-      function convertTransformer(original, context) {
-        assertDictionary(original, context);
+      function convertTransformer(original, context2) {
+        assertDictionary(original, context2);
         const flush = original === null || original === void 0 ? void 0 : original.flush;
         const readableType = original === null || original === void 0 ? void 0 : original.readableType;
         const start = original === null || original === void 0 ? void 0 : original.start;
         const transform = original === null || original === void 0 ? void 0 : original.transform;
         const writableType = original === null || original === void 0 ? void 0 : original.writableType;
         return {
-          flush: flush === void 0 ? void 0 : convertTransformerFlushCallback(flush, original, `${context} has member 'flush' that`),
+          flush: flush === void 0 ? void 0 : convertTransformerFlushCallback(flush, original, `${context2} has member 'flush' that`),
           readableType,
-          start: start === void 0 ? void 0 : convertTransformerStartCallback(start, original, `${context} has member 'start' that`),
-          transform: transform === void 0 ? void 0 : convertTransformerTransformCallback(transform, original, `${context} has member 'transform' that`),
+          start: start === void 0 ? void 0 : convertTransformerStartCallback(start, original, `${context2} has member 'start' that`),
+          transform: transform === void 0 ? void 0 : convertTransformerTransformCallback(transform, original, `${context2} has member 'transform' that`),
           writableType
         };
       }
-      function convertTransformerFlushCallback(fn, original, context) {
-        assertFunction(fn, context);
+      function convertTransformerFlushCallback(fn, original, context2) {
+        assertFunction(fn, context2);
         return (controller) => promiseCall(fn, original, [controller]);
       }
-      function convertTransformerStartCallback(fn, original, context) {
-        assertFunction(fn, context);
+      function convertTransformerStartCallback(fn, original, context2) {
+        assertFunction(fn, context2);
         return (controller) => reflectCall(fn, original, [controller]);
       }
-      function convertTransformerTransformCallback(fn, original, context) {
-        assertFunction(fn, context);
+      function convertTransformerTransformCallback(fn, original, context2) {
+        assertFunction(fn, context2);
         return (chunk, controller) => promiseCall(fn, original, [chunk, controller]);
       }
       class TransformStream {
@@ -11380,8 +11380,8 @@ var init_multipart_parser = __esm({
 // index.ts
 var import_path = require("path");
 var import_promises = require("fs/promises");
-var import_core = __toESM(require_core());
-var import_github = __toESM(require_github());
+var core = __toESM(require_core());
+var github = __toESM(require_github());
 var import_async_retry = __toESM(require_lib3());
 
 // node_modules/node-fetch/src/index.js
@@ -12549,9 +12549,9 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
 }
 
 // index.ts
-var getRepo = (inputRepoString, context) => {
+var getRepo = (inputRepoString, context2) => {
   if (inputRepoString === "") {
-    return { owner: context.repo.owner, repo: context.repo.repo };
+    return { owner: context2.repo.owner, repo: context2.repo.repo };
   } else {
     const [owner, repo] = inputRepoString.split("/");
     if (typeof owner === "undefined" || typeof repo === "undefined")
@@ -12600,7 +12600,7 @@ var baseFetchAssetFile = async (octokit, { id, outputPath, owner, repo, token })
   const response = await fetch(url, { body, headers, method });
   if (!response.ok) {
     const text = await response.text();
-    import_core.default.warning(text);
+    core.warning(text);
     throw new Error("Invalid response");
   }
   const blob = await response.blob();
@@ -12613,21 +12613,21 @@ var fetchAssetFile = (octokit, options) => (0, import_async_retry.default)(() =>
   minTimeout: 1e3
 });
 var printOutput = (release) => {
-  import_core.default.setOutput("version", release.data.tag_name);
-  import_core.default.setOutput("name", release.data.name);
-  import_core.default.setOutput("body", release.data.body);
+  core.setOutput("version", release.data.tag_name);
+  core.setOutput("name", release.data.name);
+  core.setOutput("body", release.data.body);
 };
 var filterByFileName = (file) => (asset) => file === asset.name;
 var filterByRegex = (file) => (asset) => new RegExp(file).test(asset.name);
 var main = async () => {
-  const { owner, repo } = getRepo(import_core.default.getInput("repo", { required: false }), import_github.default.context);
-  const token = import_core.default.getInput("token", { required: false });
-  const version = import_core.default.getInput("version", { required: false });
-  const inputTarget = import_core.default.getInput("target", { required: false });
-  const file = import_core.default.getInput("file", { required: true });
-  const usesRegex = import_core.default.getBooleanInput("regex", { required: false });
+  const { owner, repo } = getRepo(core.getInput("repo", { required: false }), github.context);
+  const token = core.getInput("token", { required: false });
+  const version = core.getInput("version", { required: false });
+  const inputTarget = core.getInput("target", { required: false });
+  const file = core.getInput("file", { required: true });
+  const usesRegex = core.getBooleanInput("regex", { required: false });
   const target = inputTarget === "" ? file : inputTarget;
-  const octokit = import_github.default.getOctokit(token);
+  const octokit = github.getOctokit(token);
   const release = await getRelease(octokit, { owner, repo, version });
   const assetFilterFn = usesRegex ? filterByRegex(file) : filterByFileName(file);
   const assets = release.data.assets.filter(assetFilterFn);

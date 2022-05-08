@@ -1,8 +1,8 @@
 /* eslint-disable no-void */
 import { dirname } from 'path';
 import { mkdir, writeFile } from 'fs/promises';
-import core from '@actions/core';
-import github from '@actions/github';
+import * as core from '@actions/core';
+import * as github from '@actions/github';
 import retry from 'async-retry';
 import type { Context } from '@actions/github/lib/context';
 import type { HeadersInit } from 'node-fetch';
