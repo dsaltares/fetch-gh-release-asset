@@ -25,6 +25,9 @@ inputs:
     type: boolean
     required: false
     default: false
+  octokitBaseUrl:
+    description: 'The Github API base URL. Useful if you are using Github Enterprise.'
+    required: false
 runs:
   using: 'node16'
   main: 'dist/index.js'
