@@ -1,9 +1,9 @@
 /* eslint-disable no-void */
 import { dirname } from 'path';
 import { mkdir, writeFile } from 'fs/promises';
-import * as core from '@actions/core';
-import * as github from '@actions/github';
-
+import core from '@actions/core';
+import github from '@actions/github';
+import retry from 'async-retry';
 import type { Context } from '@actions/github/lib/context';
 import type { HeadersInit } from 'node-fetch';
 import fetch from 'node-fetch';
@@ -66,13 +66,10 @@ interface FetchAssetFileOptions {
   readonly token: string;
 }
 
-const MAX_RETRY = 5;
-const RETRY_INTERVAL = 1000;
-
-const fetchAssetFile = async (
+const baseFetchAssetFile = async (
   octokit: ReturnType<typeof github.getOctokit>,
   { id, outputPath, owner, repo, token }: FetchAssetFileOptions
-): Promise<void> => {
+) => {
   const {
     body,
     headers: { accept, 'user-agent': userAgent },
@@ -96,27 +93,26 @@ const fetchAssetFile = async (
   if (typeof userAgent !== 'undefined')
     headers = { ...headers, 'user-agent': userAgent };
 
-  let i = 0;
-  while (true) {
-    const response = await fetch(url, { body, headers, method });
-    if (!response.ok) {
-      if (i < MAX_RETRY) {
-        i++;
-        await new Promise((resolve) => setTimeout(resolve, RETRY_INTERVAL));
-        continue;
-      } else {
-        const text = await response.text();
-        core.warning(text);
-        throw new Error('Invalid response');
-      }
-    }
-    const blob = await response.blob();
-    const arrayBuffer = await blob.arrayBuffer();
-    await mkdir(dirname(outputPath), { recursive: true });
-    await writeFile(outputPath, new Uint8Array(arrayBuffer));
-    return;
+  const response = await fetch(url, { body, headers, method });
+  if (!response.ok) {
+    const text = await response.text();
+    core.warning(text);
+    throw new Error('Invalid response');
   }
+  const blob = await response.blob();
+  const arrayBuffer = await blob.arrayBuffer();
+  await mkdir(dirname(outputPath), { recursive: true });
+  void (await writeFile(outputPath, new Uint8Array(arrayBuffer)));
 };
+
+const fetchAssetFile = (
+  octokit: ReturnType<typeof github.getOctokit>,
+  options: FetchAssetFileOptions
+) =>
+  retry(() => baseFetchAssetFile(octokit, options), {
+    retries: 5,
+    minTimeout: 1000,
+  });
 
 const printOutput = (release: GetReleaseResult): void => {
   core.setOutput('version', release.data.tag_name);
