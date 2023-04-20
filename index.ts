@@ -122,6 +122,7 @@ const printOutput = (release: GetReleaseResult): void => {
 
 const filterByFileName = (file: string) => (asset: Asset) =>
   file === asset.name;
+
 const filterByRegex = (file: string) => (asset: Asset) =>
   new RegExp(file).test(asset.name);
 
@@ -131,7 +132,7 @@ const main = async (): Promise<void> => {
     github.context
   );
   const token = core.getInput('token', { required: false });
-  const version = core.getInput('version', { required: false });
+  const version = core.getInput('version', { required: false }) || 'latest';
   const inputTarget = core.getInput('target', { required: false });
   const file = core.getInput('file', { required: true });
   const usesRegex = core.getBooleanInput('regex', { required: false });
