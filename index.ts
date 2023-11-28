@@ -88,8 +88,10 @@ const baseFetchAssetFile = async (
   );
   let headers: HeadersInit = {
     accept,
-    authorization: `token ${token}`,
   };
+  if (token !== '')
+    headers = { ...headers, authorization: `token ${token}` };
+
   if (typeof userAgent !== 'undefined')
     headers = { ...headers, 'user-agent': userAgent };
 

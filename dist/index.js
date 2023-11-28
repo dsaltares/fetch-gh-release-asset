@@ -13824,9 +13824,10 @@ var baseFetchAssetFile = async (octokit, { id, outputPath, owner, repo, token })
     repo
   });
   let headers = {
-    accept,
-    authorization: `token ${token}`
+    accept
   };
+  if (token !== "")
+    headers = { ...headers, authorization: `token ${token}` };
   if (typeof userAgent !== "undefined")
     headers = { ...headers, "user-agent": userAgent };
   const response = await fetch(url, { body, headers, method });
