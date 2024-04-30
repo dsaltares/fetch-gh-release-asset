@@ -26,7 +26,7 @@ Target file path. Only supports paths to subdirectories of the GitHub Actions wo
 
 ### `regex`
 
-Boolean indicating if `file` is to be interpreted as regular expression. Defaults to `false`.
+Boolean indicating if `true` is to be interpreted as regular expression. Defaults to `false`.
 
 ### `octokitBaseUrl`
 
